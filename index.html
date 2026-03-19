@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Explorer | APOD Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="stars"></div>
+
+  <header class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <p class="eyebrow">NASA-Inspired Space Explorer</p>
+      <h1>Explore 9 Days of the Cosmos</h1>
+      <p class="hero-text">
+        Choose a starting date and discover nine consecutive Astronomy Picture of the Day entries.
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="fact-panel card">
+      <h2>Did You Know?</h2>
+      <p id="space-fact">Loading a random space fact...</p>
+    </section>
+
+    <section class="controls card">
+      <div class="controls-header">
+        <h2>Mission Window</h2>
+        <p>Select a start date. The app will automatically fetch 9 consecutive days.</p>
+      </div>
+
+      <form id="date-form" class="date-form">
+        <div class="form-group">
+          <label for="start-date">Start Date</label>
+          <input type="date" id="start-date" name="start-date" required />
+        </div>
+
+        <div class="form-group">
+          <label for="end-date">End Date</label>
+          <input type="date" id="end-date" name="end-date" readonly />
+        </div>
+
+        <button type="submit" class="btn">Load Space Gallery</button>
+      </form>
+
+      <p class="helper-text">
+        Your gallery will always contain exactly 9 entries.
+      </p>
+    </section>
+
+    <section class="status-section">
+      <div id="loading" class="loading hidden" aria-live="polite">
+        Fetching images from deep space...
+      </div>
+      <div id="error-message" class="error hidden" aria-live="assertive"></div>
+    </section>
+
+    <section class="gallery-section">
+      <div class="section-heading">
+        <h2>Space Gallery</h2>
+        <p id="gallery-range-text">No mission window loaded yet.</p>
+      </div>
+
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button id="close-modal" class="close-btn" aria-label="Close modal">&times;</button>
+
+      <div id="modal-media" class="modal-media"></div>
+
+      <div class="modal-details">
+        <p id="modal-date" class="modal-date"></p>
+        <h3 id="modal-title"></h3>
+        <p id="modal-explanation" class="modal-explanation"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>
+      Built with NASA APOD data for educational purposes.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
