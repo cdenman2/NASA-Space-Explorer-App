@@ -78,6 +78,7 @@ function setDefaultDates() {
   const yesterday = getYesterdayString();
   const safeStart = subtractDays(yesterday, 12);
 
+  startDateInput.min = "1995-06-16";
   startDateInput.max = yesterday;
   startDateInput.value = safeStart;
   endDateInput.value = addDays(safeStart, 8);
@@ -202,11 +203,13 @@ function openModal(item) {
   modalExplanation.textContent = item.explanation || "No explanation available.";
 
   modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
 }
 
 function closeModal() {
   modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
   modalMedia.innerHTML = "";
   document.body.style.overflow = "";
 }
@@ -301,6 +304,11 @@ form.addEventListener("submit", async function (event) {
 
   if (!startDate) {
     showError("Please choose a start date.");
+    return;
+  }
+
+  if (startDate < "1995-06-16") {
+    showError("Start date cannot be before 1995-06-16.");
     return;
   }
 
