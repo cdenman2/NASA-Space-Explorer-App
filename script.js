@@ -1,6 +1,4 @@
-const API_KEY = "YOUR_NASA_API_KEY_HERE";
-// Example endpoint pattern:
-// https://api.nasa.gov/planetary/apod?api_key=YOUR_KEY&start_date=2026-03-01&end_date=2026-03-09&thumbs=true
+const API_KEY = "AjvYQFb3iYJhytw727jMtAjsHGCw5cqvy3nTLyRS";
 
 const gallery = document.getElementById("gallery");
 const loading = document.getElementById("loading");
@@ -21,15 +19,15 @@ const modalExplanation = document.getElementById("modal-explanation");
 
 const spaceFacts = [
   "One day on Venus is longer than one year on Venus.",
-  "Neutron stars can spin at more than 600 rotations per second.",
-  "The footprints left on the Moon can last for millions of years.",
+  "Neutron stars can spin more than 600 times per second.",
+  "The footprints on the Moon can last for millions of years.",
   "Jupiter is so large that more than 1,300 Earths could fit inside it.",
-  "A spoonful of a neutron star would weigh billions of tons on Earth.",
-  "Saturn would float in water because it is less dense than water.",
-  "There are more stars in the observable universe than grains of sand on Earth.",
-  "Light from the Sun takes about 8 minutes and 20 seconds to reach Earth.",
+  "Saturn is less dense than water.",
+  "Light from the Sun takes about 8 minutes to reach Earth.",
   "Mars has the largest volcano in the solar system: Olympus Mons.",
-  "Black holes do not suck everything in—objects must cross the event horizon to be trapped."
+  "There are more stars in the observable universe than grains of sand on Earth.",
+  "A neutron star is so dense that a tiny amount would weigh billions of tons on Earth.",
+  "Mercury has almost no atmosphere, so temperatures change drastically."
 ];
 
 function showRandomFact() {
@@ -41,9 +39,9 @@ function formatDateForInput(date) {
   return date.toISOString().split("T")[0];
 }
 
-function addDays(dateString, numberOfDays) {
+function addDays(dateString, daysToAdd) {
   const date = new Date(dateString + "T00:00:00");
-  date.setDate(date.getDate() + numberOfDays);
+  date.setDate(date.getDate() + daysToAdd);
   return formatDateForInput(date);
 }
 
@@ -58,8 +56,6 @@ function formatReadableDate(dateString) {
 
 function setDefaultDates() {
   const today = new Date();
-
-  // APOD can lag slightly depending on time, so use yesterday as safer default end.
   const safeEnd = new Date(today);
   safeEnd.setDate(today.getDate() - 1);
 
@@ -71,7 +67,9 @@ function setDefaultDates() {
 }
 
 function updateEndDateFromStart() {
-  if (!startDateInput.value) return;
+  if (!startDateInput.value) {
+    return;
+  }
   endDateInput.value = addDays(startDateInput.value, 8);
 }
 
@@ -97,11 +95,11 @@ function clearGallery() {
   gallery.innerHTML = "";
 }
 
-function getMediaSource(item) {
+function getGalleryImage(item) {
   if (item.media_type === "video") {
     return item.thumbnail_url || "";
   }
-  return item.url || item.hdurl || "";
+  return item.url || "";
 }
 
 function createGalleryCard(item) {
@@ -109,18 +107,13 @@ function createGalleryCard(item) {
   card.className = "gallery-card card";
   card.tabIndex = 0;
 
-  const mediaSrc = getMediaSource(item);
-  const isVideo = item.media_type === "video";
+  const imageSrc = getGalleryImage(item);
+  const videoBadge = item.media_type === "video" ? '<span class="video-badge">VIDEO</span>' : "";
 
   card.innerHTML = `
     <div class="gallery-image-wrap">
-      <img
-        class="gallery-image"
-        src="${mediaSrc}"
-        alt="${item.title}"
-        loading="lazy"
-      />
-      ${isVideo ? '<span class="video-badge">VIDEO</span>' : ""}
+      <img class="gallery-image" src="${imageSrc}" alt="${item.title}">
+      ${videoBadge}
     </div>
     <div class="gallery-info">
       <p class="gallery-date">${formatReadableDate(item.date)}</p>
@@ -128,8 +121,11 @@ function createGalleryCard(item) {
     </div>
   `;
 
-  card.addEventListener("click", () => openModal(item));
-  card.addEventListener("keydown", (event) => {
+  card.addEventListener("click", function () {
+    openModal(item);
+  });
+
+  card.addEventListener("keydown", function (event) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       openModal(item);
@@ -142,22 +138,22 @@ function createGalleryCard(item) {
 function renderGallery(items) {
   clearGallery();
 
-  items.forEach((item) => {
-    const card = createGalleryCard(item);
+  for (let i = 0; i < items.length; i++) {
+    const card = createGalleryCard(items[i]);
     gallery.appendChild(card);
-  });
+  }
 }
 
-function normalizeYoutubeUrl(url) {
-  if (!url) return "";
-  if (url.includes("youtube.com/embed/")) return url;
+function normalizeVideoUrl(url) {
   if (url.includes("youtube.com/watch?v=")) {
     return url.replace("watch?v=", "embed/");
   }
+
   if (url.includes("youtu.be/")) {
     const videoId = url.split("youtu.be/")[1].split("?")[0];
-    return `https://www.youtube.com/embed/${videoId}`;
+    return "https://www.youtube.com/embed/" + videoId;
   }
+
   return url;
 }
 
@@ -166,10 +162,8 @@ function openModal(item) {
 
   if (item.media_type === "video") {
     const iframe = document.createElement("iframe");
-    iframe.src = normalizeYoutubeUrl(item.url);
+    iframe.src = normalizeVideoUrl(item.url);
     iframe.title = item.title;
-    iframe.allow =
-      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
     iframe.allowFullscreen = true;
     modalMedia.appendChild(iframe);
   } else {
@@ -181,29 +175,32 @@ function openModal(item) {
 
   modalDate.textContent = formatReadableDate(item.date);
   modalTitle.textContent = item.title;
-  modalExplanation.textContent = item.explanation || "No explanation available.";
+  modalExplanation.textContent = item.explanation;
 
   modal.classList.remove("hidden");
-  modal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
 }
 
 function closeModal() {
   modal.classList.add("hidden");
-  modal.setAttribute("aria-hidden", "true");
   modalMedia.innerHTML = "";
   document.body.style.overflow = "";
 }
 
-async function fetchApodRange(startDate, endDate) {
-  const endpoint =
-    `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}` +
-    `&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
+async function fetchApodData(startDate, endDate) {
+  const url =
+    "https://api.nasa.gov/planetary/apod?api_key=" +
+    API_KEY +
+    "&start_date=" +
+    startDate +
+    "&end_date=" +
+    endDate +
+    "&thumbs=true";
 
-  const response = await fetch(endpoint);
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error("Unable to fetch NASA APOD data. Check your API key and selected date.");
+    throw new Error("NASA data could not be loaded. Check your API key or selected date.");
   }
 
   const data = await response.json();
@@ -212,11 +209,12 @@ async function fetchApodRange(startDate, endDate) {
     throw new Error("Unexpected API response.");
   }
 
-  // Sort oldest to newest so the gallery is consistent
-  data.sort((a, b) => new Date(a.date) - new Date(b.date));
+  data.sort(function (a, b) {
+    return new Date(a.date) - new Date(b.date);
+  });
 
   if (data.length !== 9) {
-    throw new Error(`Expected 9 APOD entries, but received ${data.length}.`);
+    throw new Error("The app must load exactly 9 entries. Received: " + data.length);
   }
 
   return data;
@@ -228,12 +226,10 @@ async function loadGallery(startDate, endDate) {
   clearGallery();
 
   try {
-    const items = await fetchApodRange(startDate, endDate);
+    const items = await fetchApodData(startDate, endDate);
     renderGallery(items);
-
     galleryRangeText.textContent =
-      `${formatReadableDate(startDate)} through ${formatReadableDate(endDate)}`;
-
+      formatReadableDate(startDate) + " through " + formatReadableDate(endDate);
   } catch (error) {
     showError(error.message);
     galleryRangeText.textContent = "Gallery could not be loaded.";
@@ -244,14 +240,14 @@ async function loadGallery(startDate, endDate) {
 
 startDateInput.addEventListener("change", updateEndDateFromStart);
 
-form.addEventListener("submit", async (event) => {
+form.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const startDate = startDateInput.value;
   const endDate = endDateInput.value;
 
-  if (!startDate) {
-    showError("Please select a start date.");
+  if (startDate === "") {
+    showError("Please choose a start date.");
     return;
   }
 
@@ -261,16 +257,16 @@ form.addEventListener("submit", async (event) => {
 closeModalBtn.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", closeModal);
 
-document.addEventListener("keydown", (event) => {
+document.addEventListener("keydown", function (event) {
   if (event.key === "Escape" && !modal.classList.contains("hidden")) {
     closeModal();
   }
 });
 
-function init() {
+function initializeApp() {
   showRandomFact();
   setDefaultDates();
   loadGallery(startDateInput.value, endDateInput.value);
 }
 
-init();
+initializeApp();
