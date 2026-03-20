@@ -92,6 +92,17 @@ function hideError() {
   errorBox.classList.add("hidden");
 }
 
+function isDirectVideoFile(url) {
+  if (!url) return false;
+  const cleanUrl = url.split("?")[0].toLowerCase();
+  return cleanUrl.endsWith(".mp4") || cleanUrl.endsWith(".webm") || cleanUrl.endsWith(".ogg");
+}
+
+function isEmbeddablePlatform(url) {
+  if (!url) return false;
+  return url.includes("youtube.com/") || url.includes("youtu.be/") || url.includes("vimeo.com/");
+}
+
 function normalizeVideoUrl(url) {
   if (!url) return "";
 
@@ -111,22 +122,6 @@ function normalizeVideoUrl(url) {
   }
 
   return url;
-}
-
-function isDirectVideoFile(url) {
-  if (!url) return false;
-  const cleanUrl = url.split("?")[0].toLowerCase();
-  return cleanUrl.endsWith(".mp4") || cleanUrl.endsWith(".webm") || cleanUrl.endsWith(".ogg");
-}
-
-function isEmbeddablePlatform(url) {
-  if (!url) return false;
-
-  return (
-    url.includes("youtube.com/") ||
-    url.includes("youtu.be/") ||
-    url.includes("vimeo.com/")
-  );
 }
 
 function openModal(item) {
@@ -157,13 +152,13 @@ function openModal(item) {
       previewImg.alt = item.title;
       modalMedia.appendChild(previewImg);
 
-      const fallbackLink = document.createElement("a");
-      fallbackLink.href = item.url;
-      fallbackLink.target = "_blank";
-      fallbackLink.rel = "noopener noreferrer";
-      fallbackLink.className = "modal-video-link";
-      fallbackLink.textContent = "Open Video in New Tab";
-      modalMedia.appendChild(fallbackLink);
+      const button = document.createElement("a");
+      button.href = item.url;
+      button.target = "_blank";
+      button.rel = "noopener noreferrer";
+      button.className = "modal-video-button";
+      button.textContent = "Open Video in New Tab";
+      modalMedia.appendChild(button);
     }
   } else {
     const img = document.createElement("img");
