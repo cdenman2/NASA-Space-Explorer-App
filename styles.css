@@ -1,42 +1,58 @@
 :root {
-  --bg-dark: #050b16;
-  --card-bg: rgba(11, 26, 48, 0.9);
-  --border: rgba(95, 176, 255, 0.25);
+  --pantone-286: #0033a0;
+  --pantone-185: #e4002b;
+  --card-border: rgba(255, 255, 255, 0.18);
   --text-main: #f4f7fb;
-  --text-soft: #b8c7da;
-  --accent-blue: #5fb0ff;
-  --accent-red: #fc3d21;
-  --radius: 18px;
-  --shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+  --text-soft: #d1d8e6;
+  --white: #ffffff;
+  --black: #000000;
+  --radius: 20px;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: "Inter", Arial, sans-serif;
   color: var(--text-main);
-  background:
-    radial-gradient(circle at top, rgba(95, 176, 255, 0.12), transparent 30%),
-    linear-gradient(180deg, #02060d 0%, #07111f 45%, #0a1b31 100%);
   min-height: 100vh;
   overflow-x: hidden;
+  background:
+    linear-gradient(rgba(3, 7, 18, 0.45), rgba(2, 6, 13, 0.75)),
+    url("saturn-background.png") center center / cover no-repeat fixed;
+  position: relative;
+}
+
+.background-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(91, 53, 165, 0.08), transparent 35%),
+    linear-gradient(180deg, rgba(2, 4, 10, 0.42) 0%, rgba(2, 5, 12, 0.6) 55%, rgba(2, 5, 12, 0.78) 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .stars {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.35;
   background-image:
-    radial-gradient(2px 2px at 20px 30px, white, transparent),
-    radial-gradient(1px 1px at 80px 120px, white, transparent),
-    radial-gradient(2px 2px at 180px 50px, white, transparent),
-    radial-gradient(1px 1px at 300px 140px, white, transparent),
-    radial-gradient(2px 2px at 400px 90px, white, transparent);
+    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 80px 120px, rgba(255,255,255,0.85), transparent),
+    radial-gradient(2px 2px at 180px 50px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 300px 140px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 400px 90px, rgba(255,255,255,0.8), transparent);
   background-size: 450px 220px;
+  z-index: 0;
 }
 
 .container {
@@ -47,50 +63,97 @@ body {
 }
 
 .hero {
-  padding: 4rem 0 2rem;
+  padding: 2rem 0 2rem;
   text-align: center;
+}
+
+.hero-content {
+  position: relative;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.nasa-logo {
+  width: 110px;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 .eyebrow {
   margin: 0 0 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: var(--accent-blue);
+  color: #74b9ff;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
 .hero h1 {
   margin: 0;
   font-family: "Orbitron", Arial, sans-serif;
-  font-size: clamp(2rem, 4vw, 4rem);
-  line-height: 1.1;
+  font-size: clamp(2rem, 4vw, 4.4rem);
+  line-height: 1.08;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.7);
 }
 
 .hero-text {
-  max-width: 700px;
+  max-width: 760px;
   margin: 1rem auto 0;
   color: var(--text-soft);
   line-height: 1.7;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   margin-bottom: 1.5rem;
   padding: 1.5rem;
+  backdrop-filter: blur(8px);
 }
 
-.card h2,
+.fact-panel {
+  background: rgba(0, 51, 160, 0.9);
+}
+
+.fact-panel h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--white);
+  font-family: "Orbitron", Arial, sans-serif;
+}
+
+#space-fact {
+  color: var(--pantone-185);
+  font-weight: 600;
+  margin: 0;
+}
+
+.controls {
+  background: rgba(0, 51, 160, 0.9);
+}
+
+.controls h2 {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  color: var(--white);
+  font-family: "Orbitron", Arial, sans-serif;
+}
+
 .section-heading h2,
 .modal-details h3 {
   font-family: "Orbitron", Arial, sans-serif;
 }
 
 .helper-text,
-#space-fact,
 #gallery-range-text {
   color: var(--text-soft);
 }
@@ -108,29 +171,31 @@ body {
 }
 
 label {
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.5rem;
+  color: var(--white);
 }
 
 input[type="date"] {
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-main);
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  background: var(--white);
+  color: var(--black);
   font: inherit;
 }
 
 .btn {
-  height: 49px;
-  padding: 0 1.2rem;
+  height: 52px;
+  padding: 0 1.35rem;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent-red), #ff6b4f);
-  color: white;
+  border-radius: 14px;
+  background: var(--pantone-185);
+  color: var(--white);
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 12px 24px rgba(228, 0, 43, 0.28);
 }
 
 .btn:hover {
@@ -143,16 +208,17 @@ input[type="date"] {
   border-radius: 14px;
   font-weight: 600;
   margin-bottom: 1rem;
+  backdrop-filter: blur(8px);
 }
 
 .loading {
-  background: rgba(95, 176, 255, 0.12);
-  border: 1px solid rgba(95, 176, 255, 0.35);
+  background: rgba(116, 185, 255, 0.14);
+  border: 1px solid rgba(116, 185, 255, 0.35);
 }
 
 .error {
-  background: rgba(252, 61, 33, 0.14);
-  border: 1px solid rgba(252, 61, 33, 0.45);
+  background: rgba(228, 0, 43, 0.18);
+  border: 1px solid rgba(228, 0, 43, 0.42);
 }
 
 .hidden {
@@ -170,11 +236,12 @@ input[type="date"] {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(6, 16, 36, 0.82);
 }
 
 .gallery-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.5);
 }
 
 .gallery-image-wrap {
@@ -200,7 +267,7 @@ input[type="date"] {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(252, 61, 33, 0.92);
+  background: rgba(228, 0, 43, 0.92);
   color: white;
   font-weight: 700;
   font-size: 0.78rem;
@@ -214,7 +281,7 @@ input[type="date"] {
 
 .gallery-date {
   margin: 0 0 0.45rem;
-  color: var(--accent-blue);
+  color: #74b9ff;
   font-weight: 700;
 }
 
@@ -232,7 +299,7 @@ input[type="date"] {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.82);
 }
 
 .modal-content {
@@ -241,10 +308,10 @@ input[type="date"] {
   max-height: 90vh;
   overflow-y: auto;
   margin: 4vh auto;
-  background: #091427;
-  border-radius: 20px;
+  background: rgba(7, 16, 34, 0.96);
+  border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 
 .close-btn {
@@ -252,14 +319,15 @@ input[type="date"] {
   top: 0.75rem;
   float: right;
   margin: 0.75rem 0.75rem 0 0;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 1.7rem;
   cursor: pointer;
+  z-index: 2;
 }
 
 .modal-media {
@@ -292,7 +360,7 @@ input[type="date"] {
 }
 
 .modal-date {
-  color: var(--accent-blue);
+  color: #74b9ff;
   font-weight: 700;
   margin: 0 0 0.5rem;
 }
@@ -306,6 +374,9 @@ input[type="date"] {
   text-align: center;
   color: var(--text-soft);
   padding: 1rem 0 2rem;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
 @media (max-width: 900px) {
@@ -316,6 +387,14 @@ input[type="date"] {
   .gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  body {
+    background-attachment: scroll;
+  }
+
+  .top-bar {
+    justify-content: center;
+  }
 }
 
 @media (max-width: 600px) {
@@ -324,6 +403,10 @@ input[type="date"] {
   }
 
   .hero {
-    padding-top: 3rem;
+    padding-top: 2rem;
+  }
+
+  .nasa-logo {
+    width: 88px;
   }
 }
