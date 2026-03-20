@@ -1,105 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NASA Space Explorer App</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="styles.css?v=300" />
+  <meta charset="UTF-8">
+  <title>NASA Space Explorer</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="background-layer"></div>
-  <div class="background-overlay"></div>
-  <div class="stars"></div>
 
-  <header class="hero">
-    <div class="container hero-content">
-      <div class="top-bar">
-        <div class="nasa-logo-wrap">
-          <img
-            src="./nasa-logo.png"
-            alt="NASA Logo"
-            class="nasa-logo"
-            onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='inline-flex';"
-          />
-          <div id="logo-fallback" class="logo-fallback" style="display: none;">NASA</div>
-        </div>
-      </div>
+<header>
+  <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg">
+  <h3>NASA SPACE EXPLORER</h3>
+  <h1>Explore 9 Days of the Cosmos</h1>
+</header>
 
-      <p class="eyebrow">NASA SPACE EXPLORER</p>
-      <h1>Explore 9 Days of the Cosmos</h1>
-      <p class="hero-text">
-        Choose a start date and view 9 APOD entries beginning from that date.
-      </p>
-    </div>
-  </header>
+<section class="fact-box">
+  <h2>Did You Know?</h2>
+  <p id="fact"></p>
+</section>
 
-  <main class="container">
-    <section class="card fact-panel">
-      <h2>Did You Know?</h2>
-      <p id="space-fact">Loading random space fact...</p>
-    </section>
+<section class="controls">
+  <h2>Choose Your Date Range</h2>
 
-    <section class="card controls">
-      <h2>Choose Your Date Range</h2>
+  <input type="date" id="startDate">
+  <button onclick="loadGallery()">Load Gallery</button>
+</section>
 
-      <form id="date-form" class="date-form">
-        <div class="form-group">
-          <label for="start-date">Start Date</label>
-          <input type="date" id="start-date" required />
-        </div>
+<section id="gallery" class="gallery"></section>
 
-        <div class="form-group">
-          <label for="end-date">End Date</label>
-          <input type="date" id="end-date" readonly />
-        </div>
-
-        <button type="submit" class="btn">Load Gallery</button>
-      </form>
-
-      <p class="helper-text">The app always displays 9 gallery entries.</p>
-    </section>
-
-    <section class="status-section">
-      <div id="loading" class="loading hidden">Loading NASA gallery...</div>
-      <div id="error-message" class="error hidden"></div>
-    </section>
-
-    <section class="gallery-section">
-      <div class="section-heading">
-        <h2>Gallery</h2>
-        <p id="gallery-range-text">No gallery loaded yet.</p>
-      </div>
-
-      <div id="gallery" class="gallery"></div>
-    </section>
-  </main>
-
-  <div id="modal" class="modal hidden" aria-hidden="true">
-    <div id="modal-backdrop" class="modal-backdrop"></div>
-
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button id="close-modal" class="close-btn" aria-label="Close modal">&times;</button>
-
-      <div id="modal-media" class="modal-media"></div>
-
-      <div class="modal-details">
-        <p id="modal-date" class="modal-date"></p>
-        <h3 id="modal-title"></h3>
-        <p id="modal-explanation" class="modal-explanation"></p>
-      </div>
-    </div>
+<!-- MODAL -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <span onclick="closeModal()" class="close">&times;</span>
+    <p id="modal-date"></p>
+    <h2 id="modal-title"></h2>
+    <img id="modal-img">
+    <p id="modal-desc"></p>
   </div>
+</div>
 
-  <footer class="footer">
-    <p>Educational NASA APOD Explorer</p>
-  </footer>
-
-  <script src="script.js?v=300"></script>
+<script src="script.js"></script>
 </body>
 </html>
