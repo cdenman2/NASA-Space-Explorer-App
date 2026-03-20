@@ -92,17 +92,6 @@ function hideError() {
   errorBox.classList.add("hidden");
 }
 
-function isDirectVideoFile(url) {
-  if (!url) return false;
-  const cleanUrl = url.split("?")[0].toLowerCase();
-  return cleanUrl.endsWith(".mp4") || cleanUrl.endsWith(".webm") || cleanUrl.endsWith(".ogg");
-}
-
-function isEmbeddablePlatform(url) {
-  if (!url) return false;
-  return url.includes("youtube.com/") || url.includes("youtu.be/") || url.includes("vimeo.com/");
-}
-
 function normalizeVideoUrl(url) {
   if (!url) return "";
 
@@ -124,9 +113,20 @@ function normalizeVideoUrl(url) {
   return url;
 }
 
-function isBlockedApodPage(url) {
+function isDirectVideoFile(url) {
   if (!url) return false;
-  return url.includes("apod.nasa.gov/apod/");
+  const cleanUrl = url.split("?")[0].toLowerCase();
+  return cleanUrl.endsWith(".mp4") || cleanUrl.endsWith(".webm") || cleanUrl.endsWith(".ogg");
+}
+
+function isEmbeddablePlatform(url) {
+  if (!url) return false;
+
+  return (
+    url.includes("youtube.com/") ||
+    url.includes("youtu.be/") ||
+    url.includes("vimeo.com/")
+  );
 }
 
 function openModal(item) {
@@ -143,7 +143,7 @@ function openModal(item) {
       video.autoplay = true;
       video.playsInline = true;
       modalMedia.appendChild(video);
-    } else if (isEmbeddablePlatform(item.url) && !isBlockedApodPage(item.url)) {
+    } else if (isEmbeddablePlatform(item.url)) {
       const iframe = document.createElement("iframe");
       iframe.src = normalizeVideoUrl(item.url);
       iframe.title = item.title;
@@ -152,18 +152,18 @@ function openModal(item) {
       iframe.allowFullscreen = true;
       modalMedia.appendChild(iframe);
     } else {
-      const img = document.createElement("img");
-      img.src = item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-      img.alt = item.title;
-      modalMedia.appendChild(img);
+      const previewImg = document.createElement("img");
+      previewImg.src = item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
+      previewImg.alt = item.title;
+      modalMedia.appendChild(previewImg);
 
-      const link = document.createElement("a");
-      link.href = item.url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.className = "modal-video-link";
-      link.textContent = "Open Video in New Tab";
-      modalMedia.appendChild(link);
+      const fallbackLink = document.createElement("a");
+      fallbackLink.href = item.url;
+      fallbackLink.target = "_blank";
+      fallbackLink.rel = "noopener noreferrer";
+      fallbackLink.className = "modal-video-link";
+      fallbackLink.textContent = "Open Video in New Tab";
+      modalMedia.appendChild(fallbackLink);
     }
   } else {
     const img = document.createElement("img");
