@@ -36,17 +36,22 @@ function showRandomFact() {
 }
 
 function formatDateForInput(date) {
-  return date.toISOString().split("T")[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function addDays(dateString, daysToAdd) {
-  const date = new Date(dateString + "T00:00:00");
+  const parts = dateString.split("-");
+  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   date.setDate(date.getDate() + daysToAdd);
   return formatDateForInput(date);
 }
 
 function formatReadableDate(dateString) {
-  const date = new Date(dateString + "T00:00:00");
+  const parts = dateString.split("-");
+  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -54,23 +59,38 @@ function formatReadableDate(dateString) {
   });
 }
 
+function getYesterdayString() {
+  const today = new Date();
+  today.setDate(today.getDate() - 1);
+  return formatDateForInput(today);
+}
+
 function setDefaultDates() {
   const today = new Date();
+
   const safeEnd = new Date(today);
-  safeEnd.setDate(today.getDate() - 1);
+  safeEnd.setDate(safeEnd.getDate() - 2);
 
   const safeStart = new Date(safeEnd);
-  safeStart.setDate(safeEnd.getDate() - 8);
+  safeStart.setDate(safeStart.getDate() - 8);
 
   startDateInput.value = formatDateForInput(safeStart);
   endDateInput.value = formatDateForInput(safeEnd);
+
+  startDateInput.max = getYesterdayString();
 }
 
 function updateEndDateFromStart() {
-  if (!startDateInput.value) {
-    return;
+  if (!startDateInput.value) return;
+
+  const calculatedEnd = addDays(startDateInput.value, 8);
+  const maxAllowed = getYesterdayString();
+
+  if (calculatedEnd > maxAllowed) {
+    endDateInput.value = maxAllowed;
+  } else {
+    endDateInput.value = calculatedEnd;
   }
-  endDateInput.value = addDays(startDateInput.value, 8);
 }
 
 function showLoading() {
@@ -97,7 +117,7 @@ function clearGallery() {
 
 function getGalleryImage(item) {
   if (item.media_type === "video") {
-    return item.thumbnail_url || "";
+    return item.thumbnail_url || "https://via.placeholder.com/800x450?text=Video";
   }
   return item.url || "";
 }
@@ -145,6 +165,8 @@ function renderGallery(items) {
 }
 
 function normalizeVideoUrl(url) {
+  if (!url) return "";
+
   if (url.includes("youtube.com/watch?v=")) {
     return url.replace("watch?v=", "embed/");
   }
@@ -175,7 +197,7 @@ function openModal(item) {
 
   modalDate.textContent = formatReadableDate(item.date);
   modalTitle.textContent = item.title;
-  modalExplanation.textContent = item.explanation;
+  modalExplanation.textContent = item.explanation || "No explanation available.";
 
   modal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
@@ -197,16 +219,29 @@ async function fetchApodData(startDate, endDate) {
     endDate +
     "&thumbs=true";
 
-  const response = await fetch(url);
+  console.log("Fetching URL:", url);
 
-  if (!response.ok) {
-    throw new Error("NASA data could not be loaded. Check your API key or selected date.");
+  const response = await fetch(url);
+  const rawText = await response.text();
+
+  console.log("Status:", response.status);
+  console.log("Response text:", rawText);
+
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch (parseError) {
+    throw new Error("The NASA API did not return valid JSON.");
   }
 
-  const data = await response.json();
+  if (!response.ok) {
+    const nasaMessage =
+      data.msg || data.error?.message || data.message || "Unknown NASA API error.";
+    throw new Error(nasaMessage);
+  }
 
   if (!Array.isArray(data)) {
-    throw new Error("Unexpected API response.");
+    throw new Error("Unexpected API response format.");
   }
 
   data.sort(function (a, b) {
@@ -231,6 +266,7 @@ async function loadGallery(startDate, endDate) {
     galleryRangeText.textContent =
       formatReadableDate(startDate) + " through " + formatReadableDate(endDate);
   } catch (error) {
+    console.error("Fetch failed:", error);
     showError(error.message);
     galleryRangeText.textContent = "Gallery could not be loaded.";
   } finally {
@@ -245,9 +281,20 @@ form.addEventListener("submit", async function (event) {
 
   const startDate = startDateInput.value;
   const endDate = endDateInput.value;
+  const maxAllowed = getYesterdayString();
 
   if (startDate === "") {
     showError("Please choose a start date.");
+    return;
+  }
+
+  if (startDate > maxAllowed) {
+    showError("Start date cannot be in the future.");
+    return;
+  }
+
+  if (endDate > maxAllowed) {
+    showError("End date cannot be in the future.");
     return;
   }
 
