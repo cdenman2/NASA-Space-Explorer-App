@@ -124,6 +124,11 @@ function normalizeVideoUrl(url) {
   return url;
 }
 
+function isBlockedApodPage(url) {
+  if (!url) return false;
+  return url.includes("apod.nasa.gov/apod/");
+}
+
 function openModal(item) {
   modalDate.textContent = formatReadableDate(item.date);
   modalTitle.textContent = item.title;
@@ -138,7 +143,7 @@ function openModal(item) {
       video.autoplay = true;
       video.playsInline = true;
       modalMedia.appendChild(video);
-    } else if (isEmbeddablePlatform(item.url)) {
+    } else if (isEmbeddablePlatform(item.url) && !isBlockedApodPage(item.url)) {
       const iframe = document.createElement("iframe");
       iframe.src = normalizeVideoUrl(item.url);
       iframe.title = item.title;
@@ -147,18 +152,18 @@ function openModal(item) {
       iframe.allowFullscreen = true;
       modalMedia.appendChild(iframe);
     } else {
-      const previewImg = document.createElement("img");
-      previewImg.src = item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-      previewImg.alt = item.title;
-      modalMedia.appendChild(previewImg);
+      const img = document.createElement("img");
+      img.src = item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
+      img.alt = item.title;
+      modalMedia.appendChild(img);
 
-      const button = document.createElement("a");
-      button.href = item.url;
-      button.target = "_blank";
-      button.rel = "noopener noreferrer";
-      button.className = "modal-video-button";
-      button.textContent = "Open Video in New Tab";
-      modalMedia.appendChild(button);
+      const link = document.createElement("a");
+      link.href = item.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = "modal-video-link";
+      link.textContent = "Open Video in New Tab";
+      modalMedia.appendChild(link);
     }
   } else {
     const img = document.createElement("img");
