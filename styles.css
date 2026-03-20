@@ -67,7 +67,8 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 1.1rem;
+  font-size: 2.1rem;
+  line-height: 1.1;
 }
 
 .hero h1 {
@@ -339,7 +340,8 @@ body {
 }
 
 .modal-media img,
-.modal-media iframe {
+.modal-media iframe,
+.modal-media video {
   width: 100%;
   display: block;
 }
@@ -349,9 +351,21 @@ body {
   object-fit: contain;
 }
 
-.modal-media iframe {
+.modal-media iframe,
+.modal-media video {
   aspect-ratio: 16 / 9;
   border: 0;
+}
+
+.modal-video-link {
+  display: inline-block;
+  margin-top: 14px;
+  color: var(--white);
+  background: var(--pantone-185);
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: 12px;
 }
 
 .modal-desc {
@@ -388,6 +402,10 @@ body {
 
   .hero-center {
     padding-top: 70px;
+  }
+
+  .eyebrow {
+    font-size: 1.35rem;
   }
 
   .info-box h2,
