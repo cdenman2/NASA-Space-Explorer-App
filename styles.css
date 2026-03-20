@@ -1,425 +1,86 @@
-:root {
-  --pantone-286: #0033A0;
-  --pantone-185: #E4002B;
-  --white: #FFFFFF;
-  --black: #000000;
-  --soft-text: #E6ECF5;
-  --shadow: 0 18px 36px rgba(0, 0, 0, 0.38);
-  --radius: 20px;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NASA Space Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-overlay"></div>
 
-* {
-  box-sizing: border-box;
-}
+  <header class="hero">
+    <img
+      class="logo"
+      src="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg"
+      alt="NASA logo"
+    />
 
-html {
-  scroll-behavior: smooth;
-}
+    <div class="hero-center">
+      <p class="eyebrow">NASA SPACE EXPLORER</p>
+      <h1>Explore 9 Days of the Cosmos</h1>
+      <p class="hero-text">
+        Choose a start date and view 9 APOD entries beginning from that date.
+      </p>
+    </div>
+  </header>
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: "Inter", Arial, sans-serif;
-  color: var(--white);
-  background:
-    url("https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg")
-    no-repeat center center fixed;
-  background-size: cover;
-  position: relative;
-}
+  <main class="container">
+    <section class="info-box fact-box">
+      <h2>Did You Know?</h2>
+      <p id="fact"></p>
+    </section>
 
-.page-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.50);
-  z-index: 0;
-}
+    <section class="info-box controls-box">
+      <h2>Choose Your Date Range</h2>
 
-.hero,
-.container {
-  position: relative;
-  z-index: 1;
-}
+      <form id="date-form" class="date-form">
+        <div class="field-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate" required />
+        </div>
 
-.hero {
-  padding: 22px 24px 10px;
-  min-height: 200px;
-}
+        <div class="field-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate" readonly />
+        </div>
 
-.logo {
-  position: absolute;
-  top: 22px;
-  left: 24px;
-  width: 110px;
-  height: auto;
-  display: block;
-}
+        <button type="submit" class="load-btn">Load Gallery</button>
+      </form>
 
-.hero-center {
-  max-width: 980px;
-  margin: 0 auto;
-  text-align: center;
-}
+      <p class="helper-text">The app always displays 9 gallery entries.</p>
+    </section>
 
-.eyebrow {
-  margin: 0 0 16px;
-  color: var(--pantone-286);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 2.1rem;
-  line-height: 1.1;
-}
+    <section class="status-wrap">
+      <div id="loading" class="loading hidden">Loading NASA gallery...</div>
+      <div id="errorBox" class="error hidden"></div>
+    </section>
 
-.hero h1 {
-  margin: 0;
-  font-family: "Inter", Arial, sans-serif;
-  font-style: italic;
-  font-weight: 700;
-  font-size: clamp(3.4rem, 6vw, 6.3rem);
-  line-height: 1.05;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-}
+    <section class="gallery-wrap">
+      <h2>Gallery</h2>
+      <p id="rangeText" class="range-text">No gallery loaded yet.</p>
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
 
-.hero-text {
-  margin: 16px auto 0;
-  max-width: 780px;
-  color: var(--soft-text);
-  font-size: 1.1rem;
-}
+  <div id="modal" class="modal hidden">
+    <div id="modalBackdrop" class="modal-backdrop"></div>
 
-.container {
-  width: min(1280px, calc(100% - 40px));
-  margin: 0 auto;
-  padding-bottom: 40px;
-}
+    <div class="modal-content">
+      <button id="closeModal" class="close-btn" aria-label="Close modal">&times;</button>
+      <p id="modalDate" class="modal-date"></p>
+      <h3 id="modalTitle"></h3>
+      <div id="modalMedia" class="modal-media"></div>
+      <p id="modalDesc" class="modal-desc"></p>
+    </div>
+  </div>
 
-.info-box {
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 22px 24px;
-  margin: 0 auto 22px;
-}
-
-.fact-box {
-  max-width: 760px;
-  background: rgba(0, 51, 160, 0.96);
-}
-
-.controls-box {
-  max-width: 900px;
-  background: rgba(0, 51, 160, 0.96);
-}
-
-.info-box h2 {
-  margin: 0 0 18px;
-  font-family: "Orbitron", Arial, sans-serif;
-  font-size: 2rem;
-  text-align: center;
-}
-
-.fact-box p {
-  margin: 0;
-  color: var(--pantone-185);
-  font-weight: 700;
-  text-align: left;
-  font-size: 1.1rem;
-}
-
-.date-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 16px;
-  align-items: end;
-}
-
-.field-group {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.field-group label {
-  margin-bottom: 8px;
-  font-weight: 700;
-  color: var(--white);
-  font-size: 1rem;
-}
-
-.field-group input[type="date"] {
-  width: 100%;
-  height: 56px;
-  padding: 0 16px;
-  border: 2px solid rgba(0, 0, 0, 0.18);
-  border-radius: 14px;
-  background: var(--white);
-  color: var(--black);
-  font: inherit;
-  font-size: 1rem;
-}
-
-.load-btn {
-  height: 56px;
-  padding: 0 24px;
-  border: none;
-  border-radius: 14px;
-  background: var(--pantone-185);
-  color: var(--white);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(228, 0, 43, 0.28);
-}
-
-.helper-text {
-  margin: 14px 0 0;
-  color: var(--soft-text);
-  text-align: center;
-}
-
-.status-wrap {
-  max-width: 900px;
-  margin: 0 auto 14px;
-}
-
-.loading,
-.error {
-  border-radius: 14px;
-  padding: 14px 16px;
-  font-weight: 600;
-}
-
-.loading {
-  background: rgba(0, 51, 160, 0.75);
-}
-
-.error {
-  background: rgba(228, 0, 43, 0.22);
-  border: 1px solid rgba(228, 0, 43, 0.40);
-}
-
-.hidden {
-  display: none !important;
-}
-
-.gallery-wrap {
-  margin-top: 8px;
-}
-
-.gallery-wrap h2 {
-  margin: 6px 0 10px;
-  font-family: "Orbitron", Arial, sans-serif;
-  font-size: 2rem;
-}
-
-.range-text {
-  margin: 0 0 18px;
-  color: var(--soft-text);
-  font-size: 1.05rem;
-}
-
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.card {
-  background: rgba(0, 51, 160, 0.96);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-.card-image-wrap {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  background: #000;
-  overflow: hidden;
-}
-
-.card-image-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.video-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: var(--pantone-185);
-  color: var(--white);
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-
-.card-body {
-  padding: 16px 18px 20px;
-}
-
-.card-date {
-  margin: 0 0 8px;
-  color: var(--pantone-185);
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.card-title {
-  margin: 0;
-  color: var(--white);
-  font-size: 1.05rem;
-  line-height: 1.35;
-}
-
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-}
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.82);
-}
-
-.modal-content {
-  position: relative;
-  width: min(980px, calc(100% - 24px));
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 4vh auto;
-  background: rgba(7, 16, 34, 0.98);
-  border-radius: 22px;
-  padding: 22px;
-  z-index: 1;
-}
-
-.close-btn {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--white);
-  font-size: 1.6rem;
-  cursor: pointer;
-}
-
-.modal-date {
-  margin: 0 50px 10px 0;
-  color: var(--pantone-185);
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.modal-content h3 {
-  margin: 0 50px 16px 0;
-  font-family: "Orbitron", Arial, sans-serif;
-  font-size: 1.5rem;
-}
-
-.modal-media {
-  width: 100%;
-  background: #000;
-  border-radius: 14px;
-  overflow: hidden;
-  min-height: 220px;
-}
-
-.modal-media img,
-.modal-media iframe,
-.modal-media video {
-  width: 100%;
-  display: block;
-}
-
-.modal-media img {
-  max-height: 60vh;
-  object-fit: contain;
-}
-
-.modal-media iframe,
-.modal-media video {
-  aspect-ratio: 16 / 9;
-  border: 0;
-}
-
-.modal-video-link {
-  display: inline-block;
-  margin: 20px;
-  color: var(--white);
-  background: var(--pantone-185);
-  text-decoration: none;
-  font-weight: 700;
-  padding: 12px 18px;
-  border-radius: 12px;
-}
-
-.modal-desc {
-  margin: 18px 0 0;
-  color: var(--soft-text);
-  line-height: 1.7;
-}
-
-@media (max-width: 980px) {
-  .date-form {
-    grid-template-columns: 1fr;
-  }
-
-  .gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .container {
-    width: min(100% - 20px, 1280px);
-  }
-
-  .logo {
-    width: 84px;
-    top: 18px;
-    left: 18px;
-  }
-
-  .hero {
-    padding: 18px 10px 10px;
-    min-height: 150px;
-  }
-
-  .hero-center {
-    padding-top: 70px;
-  }
-
-  .eyebrow {
-    font-size: 1.35rem;
-  }
-
-  .info-box h2,
-  .gallery-wrap h2 {
-    font-size: 1.6rem;
-  }
-
-  .gallery {
-    grid-template-columns: 1fr;
-  }
-
-  .fact-box,
-  .controls-box {
-    max-width: 100%;
-  }
-}
+  <script src="script.js"></script>
+</body>
+</html>
