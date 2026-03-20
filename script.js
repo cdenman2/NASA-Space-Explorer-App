@@ -234,7 +234,18 @@ async function loadGallery(startDate) {
   }
 }
 
-startDateInput.addEventListener("change", updateEndDate);
+startDateInput.addEventListener("change", async function () {
+  updateEndDate();
+
+  const startDate = startDateInput.value;
+  const yesterday = getYesterday();
+
+  if (!startDate) return;
+  if (startDate < "1995-06-16") return;
+  if (startDate > yesterday) return;
+
+  await loadGallery(startDate);
+});
 
 form.addEventListener("submit", async function (event) {
   event.preventDefault();
