@@ -49,6 +49,13 @@ function addDays(dateString, daysToAdd) {
   return formatDateForInput(date);
 }
 
+function subtractDays(dateString, daysToSubtract) {
+  const parts = dateString.split("-");
+  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  date.setDate(date.getDate() - daysToSubtract);
+  return formatDateForInput(date);
+}
+
 function formatReadableDate(dateString) {
   const parts = dateString.split("-");
   const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
@@ -66,31 +73,28 @@ function getYesterdayString() {
 }
 
 function setDefaultDates() {
-  const today = new Date();
+  const maxAllowed = getYesterdayString();
+  const safeStart = subtractDays(maxAllowed, 8);
 
-  const safeEnd = new Date(today);
-  safeEnd.setDate(safeEnd.getDate() - 2);
-
-  const safeStart = new Date(safeEnd);
-  safeStart.setDate(safeStart.getDate() - 8);
-
-  startDateInput.value = formatDateForInput(safeStart);
-  endDateInput.value = formatDateForInput(safeEnd);
-
-  startDateInput.max = getYesterdayString();
+  startDateInput.max = maxAllowed;
+  startDateInput.value = safeStart;
+  endDateInput.value = maxAllowed;
 }
 
 function updateEndDateFromStart() {
-  if (!startDateInput.value) return;
+  if (!startDateInput.value) {
+    return;
+  }
 
-  const calculatedEnd = addDays(startDateInput.value, 8);
   const maxAllowed = getYesterdayString();
+  let calculatedEnd = addDays(startDateInput.value, 8);
 
   if (calculatedEnd > maxAllowed) {
-    endDateInput.value = maxAllowed;
-  } else {
-    endDateInput.value = calculatedEnd;
+    calculatedEnd = maxAllowed;
+    startDateInput.value = subtractDays(maxAllowed, 8);
   }
+
+  endDateInput.value = calculatedEnd;
 }
 
 function showLoading() {
@@ -117,7 +121,7 @@ function clearGallery() {
 
 function getGalleryImage(item) {
   if (item.media_type === "video") {
-    return item.thumbnail_url || "https://via.placeholder.com/800x450?text=Video";
+    return item.thumbnail_url || "";
   }
   return item.url || "";
 }
@@ -155,17 +159,22 @@ function createGalleryCard(item) {
   return card;
 }
 
-function renderGallery(items) {
+function renderGallery(items, startDate, endDate) {
   clearGallery();
 
   for (let i = 0; i < items.length; i++) {
     const card = createGalleryCard(items[i]);
     gallery.appendChild(card);
   }
+
+  galleryRangeText.textContent =
+    formatReadableDate(startDate) + " through " + formatReadableDate(endDate);
 }
 
 function normalizeVideoUrl(url) {
-  if (!url) return "";
+  if (!url) {
+    return "";
+  }
 
   if (url.includes("youtube.com/watch?v=")) {
     return url.replace("watch?v=", "embed/");
@@ -209,64 +218,64 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 
-async function fetchApodData(startDate, endDate) {
+async function fetchSingleApod(dateString) {
   const url =
     "https://api.nasa.gov/planetary/apod?api_key=" +
     API_KEY +
-    "&start_date=" +
-    startDate +
-    "&end_date=" +
-    endDate +
+    "&date=" +
+    dateString +
     "&thumbs=true";
 
-  console.log("Fetching URL:", url);
-
   const response = await fetch(url);
-  const rawText = await response.text();
-
-  console.log("Status:", response.status);
-  console.log("Response text:", rawText);
-
-  let data;
-  try {
-    data = JSON.parse(rawText);
-  } catch (parseError) {
-    throw new Error("The NASA API did not return valid JSON.");
-  }
+  const data = await response.json();
 
   if (!response.ok) {
-    const nasaMessage =
-      data.msg || data.error?.message || data.message || "Unknown NASA API error.";
-    throw new Error(nasaMessage);
+    return null;
   }
 
-  if (!Array.isArray(data)) {
-    throw new Error("Unexpected API response format.");
-  }
-
-  data.sort(function (a, b) {
-    return new Date(a.date) - new Date(b.date);
-  });
-
-  if (data.length !== 9) {
-    throw new Error("The app must load exactly 9 entries. Received: " + data.length);
+  if (data.code || data.msg) {
+    return null;
   }
 
   return data;
 }
 
-async function loadGallery(startDate, endDate) {
+async function fetchNineEntries(startDate) {
+  const items = [];
+  let currentDate = startDate;
+  let safetyCounter = 0;
+
+  while (items.length < 9 && safetyCounter < 25) {
+    const item = await fetchSingleApod(currentDate);
+
+    if (item && item.date) {
+      items.push(item);
+    }
+
+    currentDate = addDays(currentDate, 1);
+    safetyCounter++;
+  }
+
+  if (items.length < 9) {
+    throw new Error("Unable to load 9 APOD entries for the selected range.");
+  }
+
+  return items.slice(0, 9);
+}
+
+async function loadGallery(startDate) {
   showLoading();
   hideError();
   clearGallery();
 
   try {
-    const items = await fetchApodData(startDate, endDate);
-    renderGallery(items);
-    galleryRangeText.textContent =
-      formatReadableDate(startDate) + " through " + formatReadableDate(endDate);
+    const items = await fetchNineEntries(startDate);
+    const displayedStart = items[0].date;
+    const displayedEnd = items[items.length - 1].date;
+
+    renderGallery(items, displayedStart, displayedEnd);
+    endDateInput.value = displayedEnd;
   } catch (error) {
-    console.error("Fetch failed:", error);
     showError(error.message);
     galleryRangeText.textContent = "Gallery could not be loaded.";
   } finally {
@@ -280,7 +289,6 @@ form.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const startDate = startDateInput.value;
-  const endDate = endDateInput.value;
   const maxAllowed = getYesterdayString();
 
   if (startDate === "") {
@@ -293,12 +301,7 @@ form.addEventListener("submit", async function (event) {
     return;
   }
 
-  if (endDate > maxAllowed) {
-    showError("End date cannot be in the future.");
-    return;
-  }
-
-  await loadGallery(startDate, endDate);
+  await loadGallery(startDate);
 });
 
 closeModalBtn.addEventListener("click", closeModal);
@@ -313,7 +316,8 @@ document.addEventListener("keydown", function (event) {
 function initializeApp() {
   showRandomFact();
   setDefaultDates();
-  loadGallery(startDateInput.value, endDateInput.value);
+  updateEndDateFromStart();
+  loadGallery(startDateInput.value);
 }
 
 initializeApp();
