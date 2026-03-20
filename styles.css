@@ -337,6 +337,7 @@ body {
   background: #000;
   border-radius: 14px;
   overflow: hidden;
+  min-height: 220px;
 }
 
 .modal-media img,
@@ -359,7 +360,7 @@ body {
 
 .modal-video-link {
   display: inline-block;
-  margin-top: 14px;
+  margin: 20px;
   color: var(--white);
   background: var(--pantone-185);
   text-decoration: none;
