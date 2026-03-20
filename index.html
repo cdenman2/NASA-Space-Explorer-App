@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Space Explorer | APOD Gallery</title>
+  <title>NASA Space Explorer App</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -16,69 +16,58 @@
   <div class="stars"></div>
 
   <header class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content container">
-      <p class="eyebrow">NASA-Inspired Space Explorer</p>
+    <div class="container hero-content">
+      <p class="eyebrow">NASA Space Explorer</p>
       <h1>Explore 9 Days of the Cosmos</h1>
       <p class="hero-text">
-        Choose a starting date and discover nine consecutive Astronomy Picture of the Day entries.
+        Choose a start date and view 9 consecutive Astronomy Picture of the Day entries.
       </p>
     </div>
   </header>
 
   <main class="container">
-    <section class="fact-panel card">
+    <section class="card fact-panel">
       <h2>Did You Know?</h2>
-      <p id="space-fact">Loading a random space fact...</p>
+      <p id="space-fact">Loading random space fact...</p>
     </section>
 
-    <section class="controls card">
-      <div class="controls-header">
-        <h2>Mission Window</h2>
-        <p>Select a start date. The app will automatically fetch 9 consecutive days.</p>
-      </div>
-
+    <section class="card controls">
+      <h2>Choose Your Date Range</h2>
       <form id="date-form" class="date-form">
         <div class="form-group">
           <label for="start-date">Start Date</label>
-          <input type="date" id="start-date" name="start-date" required />
+          <input type="date" id="start-date" required />
         </div>
 
         <div class="form-group">
           <label for="end-date">End Date</label>
-          <input type="date" id="end-date" name="end-date" readonly />
+          <input type="date" id="end-date" readonly />
         </div>
 
-        <button type="submit" class="btn">Load Space Gallery</button>
+        <button type="submit" class="btn">Load Gallery</button>
       </form>
-
-      <p class="helper-text">
-        Your gallery will always contain exactly 9 entries.
-      </p>
+      <p class="helper-text">The app always loads exactly 9 consecutive days.</p>
     </section>
 
     <section class="status-section">
-      <div id="loading" class="loading hidden" aria-live="polite">
-        Fetching images from deep space...
-      </div>
-      <div id="error-message" class="error hidden" aria-live="assertive"></div>
+      <div id="loading" class="loading hidden">Loading NASA gallery...</div>
+      <div id="error-message" class="error hidden"></div>
     </section>
 
     <section class="gallery-section">
       <div class="section-heading">
-        <h2>Space Gallery</h2>
-        <p id="gallery-range-text">No mission window loaded yet.</p>
+        <h2>Gallery</h2>
+        <p id="gallery-range-text">No gallery loaded yet.</p>
       </div>
-
       <div id="gallery" class="gallery"></div>
     </section>
   </main>
 
-  <div id="modal" class="modal hidden" aria-hidden="true">
-    <div class="modal-backdrop" id="modal-backdrop"></div>
+  <div id="modal" class="modal hidden">
+    <div id="modal-backdrop" class="modal-backdrop"></div>
 
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button id="close-modal" class="close-btn" aria-label="Close modal">&times;</button>
+    <div class="modal-content">
+      <button id="close-modal" class="close-btn">&times;</button>
 
       <div id="modal-media" class="modal-media"></div>
 
@@ -91,9 +80,7 @@
   </div>
 
   <footer class="footer">
-    <p>
-      Built with NASA APOD data for educational purposes.
-    </p>
+    <p>Educational NASA APOD Explorer</p>
   </footer>
 
   <script src="script.js"></script>
