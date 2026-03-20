@@ -360,7 +360,7 @@ body {
 
 .modal-video-link {
   display: inline-block;
-  margin: 18px 0 0;
+  margin: 20px;
   color: var(--white);
   background: var(--pantone-185);
   text-decoration: none;
