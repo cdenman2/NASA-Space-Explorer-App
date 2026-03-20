@@ -94,14 +94,39 @@ function hideError() {
 
 function normalizeVideoUrl(url) {
   if (!url) return "";
+
   if (url.includes("youtube.com/watch?v=")) {
     return url.replace("watch?v=", "embed/");
   }
+
   if (url.includes("youtu.be/")) {
     const videoId = url.split("youtu.be/")[1].split("?")[0];
     return `https://www.youtube.com/embed/${videoId}`;
   }
+
+  if (url.includes("vimeo.com/")) {
+    const parts = url.split("/");
+    const videoId = parts[parts.length - 1].split("?")[0];
+    return `https://player.vimeo.com/video/${videoId}`;
+  }
+
   return url;
+}
+
+function isDirectVideoFile(url) {
+  if (!url) return false;
+  const cleanUrl = url.split("?")[0].toLowerCase();
+  return cleanUrl.endsWith(".mp4") || cleanUrl.endsWith(".webm") || cleanUrl.endsWith(".ogg");
+}
+
+function canEmbedWithIframe(url) {
+  if (!url) return false;
+  return (
+    url.includes("youtube.com/") ||
+    url.includes("youtu.be/") ||
+    url.includes("vimeo.com/") ||
+    url.includes("/embed/")
+  );
 }
 
 function openModal(item) {
@@ -111,11 +136,30 @@ function openModal(item) {
   modalMedia.innerHTML = "";
 
   if (item.media_type === "video") {
-    const iframe = document.createElement("iframe");
-    iframe.src = normalizeVideoUrl(item.url);
-    iframe.title = item.title;
-    iframe.allowFullscreen = true;
-    modalMedia.appendChild(iframe);
+    if (isDirectVideoFile(item.url)) {
+      const video = document.createElement("video");
+      video.src = item.url;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      modalMedia.appendChild(video);
+    } else if (canEmbedWithIframe(item.url)) {
+      const iframe = document.createElement("iframe");
+      iframe.src = normalizeVideoUrl(item.url);
+      iframe.title = item.title;
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      modalMedia.appendChild(iframe);
+    } else {
+      const fallbackLink = document.createElement("a");
+      fallbackLink.href = item.url;
+      fallbackLink.target = "_blank";
+      fallbackLink.rel = "noopener noreferrer";
+      fallbackLink.className = "modal-video-link";
+      fallbackLink.textContent = "Open Video";
+      modalMedia.appendChild(fallbackLink);
+    }
   } else {
     const img = document.createElement("img");
     img.src = item.hdurl || item.url;
@@ -133,14 +177,18 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 
+function getCardMediaSource(item) {
+  if (item.media_type === "video") {
+    return item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
+  }
+  return item.url || "";
+}
+
 function createCard(item) {
   const card = document.createElement("article");
   card.className = "card";
 
-  const imageSrc =
-    item.media_type === "video"
-      ? (item.thumbnail_url || "")
-      : (item.url || "");
+  const imageSrc = getCardMediaSource(item);
 
   card.innerHTML = `
     <div class="card-image-wrap">
