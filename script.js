@@ -42,23 +42,25 @@ function formatDateForInput(date) {
   return `${year}-${month}-${day}`;
 }
 
-function addDays(dateString, daysToAdd) {
+function createLocalDate(dateString) {
   const parts = dateString.split("-");
-  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+}
+
+function addDays(dateString, daysToAdd) {
+  const date = createLocalDate(dateString);
   date.setDate(date.getDate() + daysToAdd);
   return formatDateForInput(date);
 }
 
 function subtractDays(dateString, daysToSubtract) {
-  const parts = dateString.split("-");
-  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  const date = createLocalDate(dateString);
   date.setDate(date.getDate() - daysToSubtract);
   return formatDateForInput(date);
 }
 
 function formatReadableDate(dateString) {
-  const parts = dateString.split("-");
-  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  const date = createLocalDate(dateString);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -86,14 +88,7 @@ function updateEndDateFromStart() {
     return;
   }
 
-  const maxAllowed = getYesterdayString();
-  let calculatedEnd = addDays(startDateInput.value, 8);
-
-  if (calculatedEnd > maxAllowed) {
-    calculatedEnd = maxAllowed;
-    startDateInput.value = subtractDays(maxAllowed, 8);
-  }
-
+  const calculatedEnd = addDays(startDateInput.value, 8);
   endDateInput.value = calculatedEnd;
 }
 
@@ -159,7 +154,7 @@ function createGalleryCard(item) {
   return card;
 }
 
-function renderGallery(items, startDate, endDate) {
+function renderGallery(items) {
   clearGallery();
 
   for (let i = 0; i < items.length; i++) {
@@ -168,7 +163,7 @@ function renderGallery(items, startDate, endDate) {
   }
 
   galleryRangeText.textContent =
-    formatReadableDate(startDate) + " through " + formatReadableDate(endDate);
+    formatReadableDate(items[0].date) + " through " + formatReadableDate(items[items.length - 1].date);
 }
 
 function normalizeVideoUrl(url) {
@@ -233,7 +228,7 @@ async function fetchSingleApod(dateString) {
     return null;
   }
 
-  if (data.code || data.msg) {
+  if (!data || data.code || data.msg || !data.date) {
     return null;
   }
 
@@ -243,24 +238,25 @@ async function fetchSingleApod(dateString) {
 async function fetchNineEntries(startDate) {
   const items = [];
   let currentDate = startDate;
-  let safetyCounter = 0;
+  let attempts = 0;
+  const maxAttempts = 40;
 
-  while (items.length < 9 && safetyCounter < 25) {
+  while (items.length < 9 && attempts < maxAttempts) {
     const item = await fetchSingleApod(currentDate);
 
-    if (item && item.date) {
+    if (item) {
       items.push(item);
     }
 
     currentDate = addDays(currentDate, 1);
-    safetyCounter++;
+    attempts++;
   }
 
   if (items.length < 9) {
-    throw new Error("Unable to load 9 APOD entries for the selected range.");
+    throw new Error("Unable to load 9 APOD entries for the selected start date.");
   }
 
-  return items.slice(0, 9);
+  return items;
 }
 
 async function loadGallery(startDate) {
@@ -270,11 +266,8 @@ async function loadGallery(startDate) {
 
   try {
     const items = await fetchNineEntries(startDate);
-    const displayedStart = items[0].date;
-    const displayedEnd = items[items.length - 1].date;
-
-    renderGallery(items, displayedStart, displayedEnd);
-    endDateInput.value = displayedEnd;
+    renderGallery(items);
+    endDateInput.value = items[items.length - 1].date;
   } catch (error) {
     showError(error.message);
     galleryRangeText.textContent = "Gallery could not be loaded.";
