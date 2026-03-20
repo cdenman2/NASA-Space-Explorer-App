@@ -10,13 +10,18 @@
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="styles.css?v=99" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="background-overlay"></div>
   <div class="stars"></div>
 
   <header class="hero">
     <div class="container hero-content">
+      <div class="top-bar">
+        <img src="nasa-logo.png" alt="NASA logo" class="nasa-logo" />
+      </div>
+
       <p class="eyebrow">NASA SPACE EXPLORER</p>
       <h1>Explore 9 Days of the Cosmos</h1>
       <p class="hero-text">
@@ -66,10 +71,10 @@
     </section>
   </main>
 
-  <div id="modal" class="modal hidden">
+  <div id="modal" class="modal hidden" aria-hidden="true">
     <div id="modal-backdrop" class="modal-backdrop"></div>
 
-    <div class="modal-content">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <button id="close-modal" class="close-btn" aria-label="Close modal">&times;</button>
 
       <div id="modal-media" class="modal-media"></div>
@@ -86,6 +91,6 @@
     <p>Educational NASA APOD Explorer</p>
   </footer>
 
-  <script src="script.js?v=99"></script>
+  <script src="script.js"></script>
 </body>
 </html>
