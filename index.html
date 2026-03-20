@@ -1,43 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NASA Space Explorer</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="page-overlay"></div>
 
-<header>
-  <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg">
-  <h3>NASA SPACE EXPLORER</h3>
-  <h1>Explore 9 Days of the Cosmos</h1>
-</header>
+  <header class="hero">
+    <img
+      class="logo"
+      src="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg"
+      alt="NASA logo"
+    />
 
-<section class="fact-box">
-  <h2>Did You Know?</h2>
-  <p id="fact"></p>
-</section>
+    <div class="hero-center">
+      <p class="eyebrow">NASA SPACE EXPLORER</p>
+      <h1>Explore 9 Days of the Cosmos</h1>
+      <p class="hero-text">
+        Choose a start date and view 9 APOD entries beginning from that date.
+      </p>
+    </div>
+  </header>
 
-<section class="controls">
-  <h2>Choose Your Date Range</h2>
+  <main class="container">
+    <section class="info-box fact-box">
+      <h2>Did You Know?</h2>
+      <p id="fact"></p>
+    </section>
 
-  <input type="date" id="startDate">
-  <button onclick="loadGallery()">Load Gallery</button>
-</section>
+    <section class="info-box controls-box">
+      <h2>Choose Your Date Range</h2>
 
-<section id="gallery" class="gallery"></section>
+      <form id="date-form" class="date-form">
+        <div class="field-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate" required />
+        </div>
 
-<!-- MODAL -->
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <span onclick="closeModal()" class="close">&times;</span>
-    <p id="modal-date"></p>
-    <h2 id="modal-title"></h2>
-    <img id="modal-img">
-    <p id="modal-desc"></p>
+        <div class="field-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate" readonly />
+        </div>
+
+        <button type="submit" class="load-btn">Load Gallery</button>
+      </form>
+
+      <p class="helper-text">The app always displays 9 gallery entries.</p>
+    </section>
+
+    <section class="status-wrap">
+      <div id="loading" class="loading hidden">Loading NASA gallery...</div>
+      <div id="errorBox" class="error hidden"></div>
+    </section>
+
+    <section class="gallery-wrap">
+      <h2>Gallery</h2>
+      <p id="rangeText" class="range-text">No gallery loaded yet.</p>
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div id="modalBackdrop" class="modal-backdrop"></div>
+
+    <div class="modal-content">
+      <button id="closeModal" class="close-btn" aria-label="Close modal">&times;</button>
+      <p id="modalDate" class="modal-date"></p>
+      <h3 id="modalTitle"></h3>
+      <div id="modalMedia" class="modal-media"></div>
+      <p id="modalDesc" class="modal-desc"></p>
+    </div>
   </div>
-</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
