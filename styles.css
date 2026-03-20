@@ -116,8 +116,8 @@ label {
 input[type="date"] {
   padding: 0.9rem 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-main);
   font: inherit;
 }
@@ -193,7 +193,6 @@ input[type="date"] {
   transition: transform 0.45s ease;
 }
 
-/* Hover zoom effect */
 .gallery-card:hover .gallery-image {
   transform: scale(1.08);
 }
@@ -245,7 +244,7 @@ input[type="date"] {
   margin: 4vh auto;
   background: #091427;
   border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
 }
 
@@ -258,7 +257,7 @@ input[type="date"] {
   height: 44px;
   border: none;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 1.7rem;
   cursor: pointer;
