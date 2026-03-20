@@ -10,7 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <div class="stars"></div>
@@ -33,6 +33,7 @@
 
     <section class="card controls">
       <h2>Choose Your Date Range</h2>
+
       <form id="date-form" class="date-form">
         <div class="form-group">
           <label for="start-date">Start Date</label>
@@ -46,6 +47,7 @@
 
         <button type="submit" class="btn">Load Gallery</button>
       </form>
+
       <p class="helper-text">The app always loads exactly 9 gallery entries.</p>
     </section>
 
@@ -59,6 +61,7 @@
         <h2>Gallery</h2>
         <p id="gallery-range-text">No gallery loaded yet.</p>
       </div>
+
       <div id="gallery" class="gallery"></div>
     </section>
   </main>
@@ -67,7 +70,7 @@
     <div id="modal-backdrop" class="modal-backdrop"></div>
 
     <div class="modal-content">
-      <button id="close-modal" class="close-btn">&times;</button>
+      <button id="close-modal" class="close-btn" aria-label="Close modal">&times;</button>
 
       <div id="modal-media" class="modal-media"></div>
 
@@ -83,6 +86,6 @@
     <p>Educational NASA APOD Explorer</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>
