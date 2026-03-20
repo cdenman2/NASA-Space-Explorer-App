@@ -75,12 +75,12 @@ function getYesterdayString() {
 }
 
 function setDefaultDates() {
-  const maxAllowed = getYesterdayString();
-  const safeStart = subtractDays(maxAllowed, 8);
+  const yesterday = getYesterdayString();
+  const safeStart = subtractDays(yesterday, 12);
 
-  startDateInput.max = maxAllowed;
+  startDateInput.max = yesterday;
   startDateInput.value = safeStart;
-  endDateInput.value = maxAllowed;
+  endDateInput.value = addDays(safeStart, 8);
 }
 
 function updateEndDateFromStart() {
@@ -88,8 +88,7 @@ function updateEndDateFromStart() {
     return;
   }
 
-  const calculatedEnd = addDays(startDateInput.value, 8);
-  endDateInput.value = calculatedEnd;
+  endDateInput.value = addDays(startDateInput.value, 8);
 }
 
 function showLoading() {
@@ -158,8 +157,7 @@ function renderGallery(items) {
   clearGallery();
 
   for (let i = 0; i < items.length; i++) {
-    const card = createGalleryCard(items[i]);
-    gallery.appendChild(card);
+    gallery.appendChild(createGalleryCard(items[i]));
   }
 
   galleryRangeText.textContent =
@@ -213,50 +211,67 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 
-async function fetchSingleApod(dateString) {
+async function fetchApodRange(startDate, endDate) {
   const url =
     "https://api.nasa.gov/planetary/apod?api_key=" +
     API_KEY +
-    "&date=" +
-    dateString +
+    "&start_date=" +
+    startDate +
+    "&end_date=" +
+    endDate +
     "&thumbs=true";
 
   const response = await fetch(url);
   const data = await response.json();
 
   if (!response.ok) {
-    return null;
+    const message = data.msg || "NASA API error.";
+    throw new Error(message);
   }
 
-  if (!data || data.code || data.msg || !data.date) {
-    return null;
+  if (!Array.isArray(data)) {
+    throw new Error("Unexpected NASA API response.");
   }
+
+  data.sort(function (a, b) {
+    return createLocalDate(a.date) - createLocalDate(b.date);
+  });
 
   return data;
 }
 
 async function fetchNineEntries(startDate) {
-  const items = [];
-  let currentDate = startDate;
+  const collected = [];
+  const usedDates = new Set();
+  let searchStart = startDate;
   let attempts = 0;
-  const maxAttempts = 40;
 
-  while (items.length < 9 && attempts < maxAttempts) {
-    const item = await fetchSingleApod(currentDate);
+  while (collected.length < 9 && attempts < 10) {
+    const searchEnd = addDays(searchStart, 15);
+    const batch = await fetchApodRange(searchStart, searchEnd);
 
-    if (item) {
-      items.push(item);
+    for (let i = 0; i < batch.length; i++) {
+      const item = batch[i];
+
+      if (!usedDates.has(item.date)) {
+        usedDates.add(item.date);
+        collected.push(item);
+      }
+
+      if (collected.length === 9) {
+        break;
+      }
     }
 
-    currentDate = addDays(currentDate, 1);
+    searchStart = addDays(searchEnd, 1);
     attempts++;
   }
 
-  if (items.length < 9) {
-    throw new Error("Unable to load 9 APOD entries for the selected start date.");
+  if (collected.length < 9) {
+    throw new Error("Unable to load 9 APOD entries.");
   }
 
-  return items;
+  return collected.slice(0, 9);
 }
 
 async function loadGallery(startDate) {
@@ -267,7 +282,7 @@ async function loadGallery(startDate) {
   try {
     const items = await fetchNineEntries(startDate);
     renderGallery(items);
-    endDateInput.value = items[items.length - 1].date;
+    endDateInput.value = items[8].date;
   } catch (error) {
     showError(error.message);
     galleryRangeText.textContent = "Gallery could not be loaded.";
@@ -282,14 +297,14 @@ form.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const startDate = startDateInput.value;
-  const maxAllowed = getYesterdayString();
+  const yesterday = getYesterdayString();
 
-  if (startDate === "") {
+  if (!startDate) {
     showError("Please choose a start date.");
     return;
   }
 
-  if (startDate > maxAllowed) {
+  if (startDate > yesterday) {
     showError("Start date cannot be in the future.");
     return;
   }
