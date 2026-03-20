@@ -10,16 +10,25 @@
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="styles.css?v=200" />
+  <link rel="stylesheet" href="styles.css?v=300" />
 </head>
 <body>
+  <div class="background-layer"></div>
   <div class="background-overlay"></div>
   <div class="stars"></div>
 
   <header class="hero">
     <div class="container hero-content">
       <div class="top-bar">
-        <img src="nasa-logo.png" alt="NASA logo" class="nasa-logo" />
+        <div class="nasa-logo-wrap">
+          <img
+            src="./nasa-logo.png"
+            alt="NASA Logo"
+            class="nasa-logo"
+            onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='inline-flex';"
+          />
+          <div id="logo-fallback" class="logo-fallback" style="display: none;">NASA</div>
+        </div>
       </div>
 
       <p class="eyebrow">NASA SPACE EXPLORER</p>
@@ -91,6 +100,6 @@
     <p>Educational NASA APOD Explorer</p>
   </footer>
 
-  <script src="script.js?v=200"></script>
+  <script src="script.js?v=300"></script>
 </body>
 </html>
