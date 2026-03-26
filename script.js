@@ -62,11 +62,9 @@ const modalDesc = document.getElementById("modalDesc");
 
 function getRandomFact(currentFact) {
   let newFact;
-
   do {
     newFact = facts[Math.floor(Math.random() * facts.length)];
   } while (newFact === currentFact);
-
   return newFact;
 }
 
@@ -78,18 +76,39 @@ setInterval(function () {
   factEl.textContent = currentFact;
 }, 5000);
 
+// ===== IMPROVED FEMALE VOICE =====
 function speakText(text) {
   if (!("speechSynthesis" in window)) return;
 
   window.speechSynthesis.cancel();
 
   const speech = new SpeechSynthesisUtterance(text);
-  speech.rate = 1;
-  speech.pitch = 1;
+
+  const voices = window.speechSynthesis.getVoices();
+
+  // Try to pick a natural female voice
+  const femaleVoice =
+    voices.find(v => v.name.includes("Female")) ||
+    voices.find(v => v.name.includes("Google US English")) ||
+    voices.find(v => v.name.includes("Samantha")) ||
+    voices.find(v => v.name.includes("Zira")) ||
+    voices.find(v => v.lang === "en-US");
+
+  if (femaleVoice) {
+    speech.voice = femaleVoice;
+  }
+
+  // Make it sound more natural
+  speech.rate = 0.95;
+  speech.pitch = 1.2;
   speech.volume = 1;
 
   window.speechSynthesis.speak(speech);
 }
+
+// Ensure voices are loaded (important for Chrome)
+window.speechSynthesis.onvoiceschanged = () => {};
+// =================================
 
 function formatDateForInput(date) {
   const year = date.getFullYear();
@@ -285,6 +304,7 @@ function openModal(item) {
 }
 
 function closeModal() {
+  window.speechSynthesis.cancel();
   modal.classList.add("hidden");
   clearModalMedia();
   document.body.style.overflow = "";
