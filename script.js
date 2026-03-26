@@ -78,6 +78,19 @@ setInterval(function () {
   factEl.textContent = currentFact;
 }, 5000);
 
+function speakText(text) {
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.rate = 1;
+  speech.pitch = 1;
+  speech.volume = 1;
+
+  window.speechSynthesis.speak(speech);
+}
+
 function formatDateForInput(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -222,6 +235,7 @@ function openModal(item) {
   modalDate.textContent = formatReadableDate(item.date);
   modalTitle.textContent = item.title;
   modalDesc.textContent = item.explanation || "";
+  speakText(item.explanation || "");
   clearModalMedia();
 
   if (item.media_type === "video") {
