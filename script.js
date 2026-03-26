@@ -104,7 +104,11 @@ function normalizeVideoUrl(url) {
     return `https://www.youtube.com/embed/${videoId}`;
   }
 
-  if (url.includes("vimeo.com/")) {
+  if (url.includes("youtube.com/embed/")) {
+    return url;
+  }
+
+  if (url.includes("vimeo.com/") && !url.includes("player.vimeo.com/video/")) {
     const parts = url.split("/");
     const videoId = parts[parts.length - 1].split("?")[0];
     return `https://player.vimeo.com/video/${videoId}`;
@@ -116,24 +120,58 @@ function normalizeVideoUrl(url) {
 function isDirectVideoFile(url) {
   if (!url) return false;
   const cleanUrl = url.split("?")[0].toLowerCase();
-  return cleanUrl.endsWith(".mp4") || cleanUrl.endsWith(".webm") || cleanUrl.endsWith(".ogg");
+  return (
+    cleanUrl.endsWith(".mp4") ||
+    cleanUrl.endsWith(".webm") ||
+    cleanUrl.endsWith(".ogg") ||
+    cleanUrl.endsWith(".mov") ||
+    cleanUrl.endsWith(".m4v")
+  );
 }
 
-function isEmbeddablePlatform(url) {
+function isYouTubeOrVimeo(url) {
   if (!url) return false;
 
   return (
     url.includes("youtube.com/") ||
     url.includes("youtu.be/") ||
-    url.includes("vimeo.com/")
+    url.includes("vimeo.com/") ||
+    url.includes("player.vimeo.com/")
   );
+}
+
+function clearModalMedia() {
+  modalMedia.innerHTML = "";
+}
+
+function buildFallbackVideoContent(item) {
+  const previewImg = document.createElement("img");
+  previewImg.src =
+    item.thumbnail_url ||
+    "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
+  previewImg.alt = item.title;
+  modalMedia.appendChild(previewImg);
+
+  const note = document.createElement("p");
+  note.className = "video-fallback-note";
+  note.textContent =
+    "This video source blocks in-app embedding, so it cannot play inside the modal. Use the button below to open it directly.";
+  modalMedia.appendChild(note);
+
+  const fallbackLink = document.createElement("a");
+  fallbackLink.href = item.url;
+  fallbackLink.target = "_blank";
+  fallbackLink.rel = "noopener noreferrer";
+  fallbackLink.className = "modal-video-link";
+  fallbackLink.textContent = "Open Video";
+  modalMedia.appendChild(fallbackLink);
 }
 
 function openModal(item) {
   modalDate.textContent = formatReadableDate(item.date);
   modalTitle.textContent = item.title;
   modalDesc.textContent = item.explanation || "";
-  modalMedia.innerHTML = "";
+  clearModalMedia();
 
   if (item.media_type === "video") {
     if (isDirectVideoFile(item.url)) {
@@ -141,34 +179,39 @@ function openModal(item) {
       video.src = item.url;
       video.controls = true;
       video.autoplay = true;
+      video.muted = false;
       video.playsInline = true;
+      video.setAttribute("webkit-playsinline", "true");
+      video.setAttribute("preload", "metadata");
+
+      if (item.thumbnail_url) {
+        video.poster = item.thumbnail_url;
+      }
+
+      video.addEventListener("error", function () {
+        clearModalMedia();
+        buildFallbackVideoContent(item);
+      });
+
       modalMedia.appendChild(video);
-    } else if (isEmbeddablePlatform(item.url)) {
+    } else if (isYouTubeOrVimeo(item.url)) {
       const iframe = document.createElement("iframe");
       iframe.src = normalizeVideoUrl(item.url);
       iframe.title = item.title;
       iframe.allow =
         "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
       iframe.allowFullscreen = true;
+      iframe.referrerPolicy = "strict-origin-when-cross-origin";
+
       modalMedia.appendChild(iframe);
     } else {
-      const previewImg = document.createElement("img");
-      previewImg.src = item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-      previewImg.alt = item.title;
-      modalMedia.appendChild(previewImg);
-
-      const fallbackLink = document.createElement("a");
-      fallbackLink.href = item.url;
-      fallbackLink.target = "_blank";
-      fallbackLink.rel = "noopener noreferrer";
-      fallbackLink.className = "modal-video-link";
-      fallbackLink.textContent = "Open Video in New Tab";
-      modalMedia.appendChild(fallbackLink);
+      buildFallbackVideoContent(item);
     }
   } else {
     const img = document.createElement("img");
     img.src = item.hdurl || item.url;
     img.alt = item.title;
+    img.loading = "lazy";
     modalMedia.appendChild(img);
   }
 
@@ -178,7 +221,7 @@ function openModal(item) {
 
 function closeModal() {
   modal.classList.add("hidden");
-  modalMedia.innerHTML = "";
+  clearModalMedia();
   document.body.style.overflow = "";
 }
 
@@ -197,7 +240,7 @@ function createCard(item) {
 
   card.innerHTML = `
     <div class="card-image-wrap">
-      <img src="${imageSrc}" alt="${item.title}">
+      <img src="${imageSrc}" alt="${item.title}" loading="lazy">
       ${item.media_type === "video" ? '<span class="video-badge">VIDEO</span>' : ""}
     </div>
     <div class="card-body">
