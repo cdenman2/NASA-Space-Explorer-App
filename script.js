@@ -76,7 +76,6 @@ setInterval(function () {
   factEl.textContent = currentFact;
 }, 5000);
 
-// ===== IMPROVED FEMALE VOICE =====
 function speakText(text) {
   if (!("speechSynthesis" in window)) return;
 
@@ -86,7 +85,6 @@ function speakText(text) {
 
   const voices = window.speechSynthesis.getVoices();
 
-  // Try to pick a natural female voice
   const femaleVoice =
     voices.find(v => v.name.includes("Female")) ||
     voices.find(v => v.name.includes("Google US English")) ||
@@ -98,7 +96,6 @@ function speakText(text) {
     speech.voice = femaleVoice;
   }
 
-  // Make it sound more natural
   speech.rate = 0.95;
   speech.pitch = 1.2;
   speech.volume = 1;
@@ -106,9 +103,7 @@ function speakText(text) {
   window.speechSynthesis.speak(speech);
 }
 
-// Ensure voices are loaded (important for Chrome)
 window.speechSynthesis.onvoiceschanged = () => {};
-// =================================
 
 function formatDateForInput(date) {
   const year = date.getFullYear();
@@ -304,7 +299,9 @@ function openModal(item) {
 }
 
 function closeModal() {
-  window.speechSynthesis.cancel();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
   modal.classList.add("hidden");
   clearModalMedia();
   document.body.style.overflow = "";
@@ -457,7 +454,16 @@ modalBackdrop.addEventListener("click", closeModal);
 
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     closeModal();
+  }
+});
+
+document.addEventListener("visibilitychange", function () {
+  if (document.hidden && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
   }
 });
 
