@@ -5,7 +5,42 @@ const facts = [
   "Jupiter is so large that more than 1,300 Earths could fit inside it.",
   "Neutron stars can spin more than 600 times per second.",
   "Light from the Sun takes about 8 minutes to reach Earth.",
-  "Mars has the largest volcano in the solar system: Olympus Mons."
+  "Mars has the largest volcano in the solar system: Olympus Mons.",
+  "A day on Venus is longer than a year on Venus.",
+  "The footprints on the Moon can last millions of years.",
+  "There are more stars in the universe than grains of sand on Earth.",
+  "The Sun accounts for about 99.86% of the mass in our solar system.",
+  "One million Earths could fit inside the Sun.",
+  "Black holes can stretch objects into spaghetti-like shapes, called spaghettification.",
+  "The Milky Way galaxy is about 100,000 light-years wide.",
+  "A light-year is the distance light travels in one year—about 5.88 trillion miles.",
+  "Pluto is smaller than the United States.",
+  "The International Space Station is visible from Earth with the naked eye.",
+  "Mercury has no atmosphere to retain heat, so temperatures vary drastically.",
+  "Jupiter has the shortest day of all planets—just under 10 hours.",
+  "The largest canyon in the solar system is on Mars (Valles Marineris).",
+  "Uranus rotates on its side compared to other planets.",
+  "Neptune has the fastest winds in the solar system—over 1,200 mph.",
+  "A teaspoon of neutron star material would weigh about a billion tons.",
+  "The Moon is slowly drifting away from Earth each year.",
+  "Space is completely silent because there is no air to carry sound.",
+  "The Hubble Space Telescope has taken over a million images of space.",
+  "Astronauts grow taller in space due to reduced gravity on their spine.",
+  "The Sun will eventually become a red giant and expand.",
+  "Mars has two small moons: Phobos and Deimos.",
+  "The Great Red Spot on Jupiter is a storm that has lasted over 300 years.",
+  "The coldest place in the universe found so far is the Boomerang Nebula.",
+  "Some stars explode as supernovae and briefly outshine entire galaxies.",
+  "Our galaxy, the Milky Way, is on a collision course with the Andromeda galaxy.",
+  "There may be billions of Earth-like planets in our galaxy alone.",
+  "The first human in space was Yuri Gagarin in 1961.",
+  "The first person to walk on the Moon was Neil Armstrong in 1969.",
+  "Spacecraft have visited every planet in our solar system.",
+  "The Sun's surface temperature is about 10,000°F (5,500°C).",
+  "Dark matter makes up most of the universe, but we cannot see it directly.",
+  "A comet’s tail always points away from the Sun.",
+  "Some planets outside our solar system are called exoplanets.",
+  "The largest known star, UY Scuti, is over 1,700 times bigger than the Sun."
 ];
 
 const factEl = document.getElementById("fact");
@@ -25,7 +60,23 @@ const modalTitle = document.getElementById("modalTitle");
 const modalMedia = document.getElementById("modalMedia");
 const modalDesc = document.getElementById("modalDesc");
 
-factEl.textContent = facts[Math.floor(Math.random() * facts.length)];
+function getRandomFact(currentFact) {
+  let newFact;
+
+  do {
+    newFact = facts[Math.floor(Math.random() * facts.length)];
+  } while (newFact === currentFact);
+
+  return newFact;
+}
+
+let currentFact = facts[Math.floor(Math.random() * facts.length)];
+factEl.textContent = currentFact;
+
+setInterval(function () {
+  currentFact = getRandomFact(currentFact);
+  factEl.textContent = currentFact;
+}, 5000);
 
 function formatDateForInput(date) {
   const year = date.getFullYear();
