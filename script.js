@@ -71,50 +71,18 @@ function getRandomFact(currentFact) {
 let currentFact = facts[Math.floor(Math.random() * facts.length)];
 factEl.textContent = currentFact;
 
-setInterval(function () {
+setInterval(() => {
   currentFact = getRandomFact(currentFact);
   factEl.textContent = currentFact;
 }, 5000);
 
-function speakText(text) {
-  if (!("speechSynthesis" in window)) return;
-
-  window.speechSynthesis.cancel();
-
-  const speech = new SpeechSynthesisUtterance(text);
-
-  const voices = window.speechSynthesis.getVoices();
-
-  const femaleVoice =
-    voices.find(v => v.name.includes("Female")) ||
-    voices.find(v => v.name.includes("Google US English")) ||
-    voices.find(v => v.name.includes("Samantha")) ||
-    voices.find(v => v.name.includes("Zira")) ||
-    voices.find(v => v.lang === "en-US");
-
-  if (femaleVoice) {
-    speech.voice = femaleVoice;
-  }
-
-  speech.rate = 0.95;
-  speech.pitch = 1.2;
-  speech.volume = 1;
-
-  window.speechSynthesis.speak(speech);
-}
-
-window.speechSynthesis.onvoiceschanged = () => {};
-
 function formatDateForInput(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return date.toISOString().split("T")[0];
 }
 
 function createLocalDate(dateString) {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return new Date(year, month - 1, day);
+  const [y, m, d] = dateString.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 function addDays(dateString, days) {
@@ -170,187 +138,17 @@ function hideError() {
   errorBox.classList.add("hidden");
 }
 
-function normalizeVideoUrl(url) {
-  if (!url) return "";
-
-  if (url.includes("youtube.com/watch?v=")) {
-    return url.replace("watch?v=", "embed/");
-  }
-
-  if (url.includes("youtu.be/")) {
-    const videoId = url.split("youtu.be/")[1].split("?")[0];
-    return `https://www.youtube.com/embed/${videoId}`;
-  }
-
-  if (url.includes("youtube.com/embed/")) {
-    return url;
-  }
-
-  if (url.includes("vimeo.com/") && !url.includes("player.vimeo.com/video/")) {
-    const parts = url.split("/");
-    const videoId = parts[parts.length - 1].split("?")[0];
-    return `https://player.vimeo.com/video/${videoId}`;
-  }
-
-  return url;
-}
-
-function isDirectVideoFile(url) {
-  if (!url) return false;
-  const cleanUrl = url.split("?")[0].toLowerCase();
-  return (
-    cleanUrl.endsWith(".mp4") ||
-    cleanUrl.endsWith(".webm") ||
-    cleanUrl.endsWith(".ogg") ||
-    cleanUrl.endsWith(".mov") ||
-    cleanUrl.endsWith(".m4v")
-  );
-}
-
-function isYouTubeOrVimeo(url) {
-  if (!url) return false;
-
-  return (
-    url.includes("youtube.com/") ||
-    url.includes("youtu.be/") ||
-    url.includes("vimeo.com/") ||
-    url.includes("player.vimeo.com/")
-  );
-}
-
-function clearModalMedia() {
-  modalMedia.innerHTML = "";
-}
-
-function buildFallbackVideoContent(item) {
-  const previewImg = document.createElement("img");
-  previewImg.src =
-    item.thumbnail_url ||
-    "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-  previewImg.alt = item.title;
-  modalMedia.appendChild(previewImg);
-
-  const note = document.createElement("p");
-  note.className = "video-fallback-note";
-  note.textContent =
-    "This video source blocks in-app embedding, so it cannot play inside the modal. Use the button below to open it directly.";
-  modalMedia.appendChild(note);
-
-  const fallbackLink = document.createElement("a");
-  fallbackLink.href = item.url;
-  fallbackLink.target = "_blank";
-  fallbackLink.rel = "noopener noreferrer";
-  fallbackLink.className = "modal-video-link";
-  fallbackLink.textContent = "Open Video";
-  modalMedia.appendChild(fallbackLink);
-}
-
-function openModal(item) {
-  modalDate.textContent = formatReadableDate(item.date);
-  modalTitle.textContent = item.title;
-  modalDesc.textContent = item.explanation || "";
-  speakText(item.explanation || "");
-  clearModalMedia();
-
-  if (item.media_type === "video") {
-    if (isDirectVideoFile(item.url)) {
-      const video = document.createElement("video");
-      video.src = item.url;
-      video.controls = true;
-      video.autoplay = true;
-      video.muted = false;
-      video.playsInline = true;
-      video.setAttribute("webkit-playsinline", "true");
-      video.setAttribute("preload", "metadata");
-
-      if (item.thumbnail_url) {
-        video.poster = item.thumbnail_url;
-      }
-
-      video.addEventListener("error", function () {
-        clearModalMedia();
-        buildFallbackVideoContent(item);
-      });
-
-      modalMedia.appendChild(video);
-    } else if (isYouTubeOrVimeo(item.url)) {
-      const iframe = document.createElement("iframe");
-      iframe.src = normalizeVideoUrl(item.url);
-      iframe.title = item.title;
-      iframe.allow =
-        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      iframe.allowFullscreen = true;
-      iframe.referrerPolicy = "strict-origin-when-cross-origin";
-
-      modalMedia.appendChild(iframe);
-    } else {
-      buildFallbackVideoContent(item);
-    }
-  } else {
-    const img = document.createElement("img");
-    img.src = item.hdurl || item.url;
-    img.alt = item.title;
-    img.loading = "lazy";
-    modalMedia.appendChild(img);
-  }
-
-  modal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeModal() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-  modal.classList.add("hidden");
-  clearModalMedia();
-  document.body.style.overflow = "";
-}
-
-function getCardMediaSource(item) {
-  if (item.media_type === "video") {
-    return item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-  }
-  return item.url || "";
-}
-
-function createCard(item) {
-  const card = document.createElement("article");
-  card.className = "card";
-
-  const imageSrc = getCardMediaSource(item);
-
-  card.innerHTML = `
-    <div class="card-image-wrap">
-      <img src="${imageSrc}" alt="${item.title}" loading="lazy">
-      ${item.media_type === "video" ? '<span class="video-badge">VIDEO</span>' : ""}
-    </div>
-    <div class="card-body">
-      <p class="card-date">${formatReadableDate(item.date)}</p>
-      <h3 class="card-title">${item.title}</h3>
-    </div>
-  `;
-
-  card.addEventListener("click", function () {
-    openModal(item);
-  });
-
-  return card;
-}
-
 async function fetchApodRange(startDate, endDate) {
-  const url =
-    `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
+  const url = `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
 
   const response = await fetch(url);
-  const rawText = await response.text();
+  const text = await response.text();
 
   let data;
-
   try {
-    data = JSON.parse(rawText);
-  } catch (error) {
-    throw new Error("NASA API returned invalid data. Please try another date.");
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("NASA API returned invalid data. Try a different date.");
   }
 
   if (!response.ok) {
@@ -361,16 +159,30 @@ async function fetchApodRange(startDate, endDate) {
     throw new Error("Unexpected NASA API response.");
   }
 
-  data.sort(function (a, b) {
-    return createLocalDate(a.date) - createLocalDate(b.date);
-  });
-
+  data.sort((a, b) => createLocalDate(a.date) - createLocalDate(b.date));
   return data;
 }
 
 async function fetchNineEntries(startDate) {
   const endDate = addDays(startDate, 8);
   return await fetchApodRange(startDate, endDate);
+}
+
+function createCard(item) {
+  const card = document.createElement("article");
+  card.className = "card";
+
+  card.innerHTML = `
+    <div class="card-image-wrap">
+      <img src="${item.url}" alt="${item.title}">
+    </div>
+    <div class="card-body">
+      <p class="card-date">${formatReadableDate(item.date)}</p>
+      <h3 class="card-title">${item.title}</h3>
+    </div>
+  `;
+
+  return card;
 }
 
 async function loadGallery(startDate) {
@@ -381,13 +193,12 @@ async function loadGallery(startDate) {
   try {
     const items = await fetchNineEntries(startDate);
 
-    items.forEach(function (item) {
-      gallery.appendChild(createCard(item));
-    });
+    items.forEach(item => gallery.appendChild(createCard(item)));
 
-    endDateInput.value = addDays(startDate, 8);
+    endDateInput.value = items[items.length - 1].date;
     rangeText.textContent =
-      `${formatReadableDate(startDate)} through ${formatReadableDate(addDays(startDate, 8))}`;
+      `${formatReadableDate(items[0].date)} through ${formatReadableDate(items[items.length - 1].date)}`;
+
   } catch (error) {
     showError(error.message);
     rangeText.textContent = "Gallery could not be loaded.";
@@ -396,59 +207,14 @@ async function loadGallery(startDate) {
   }
 }
 
-startDateInput.addEventListener("change", async function () {
+startDateInput.addEventListener("change", () => {
   updateEndDate();
-
-  const startDate = startDateInput.value;
-  const yesterday = getYesterday();
-
-  if (!startDate) return;
-  if (startDate < "1995-06-16") return;
-  if (startDate > yesterday) return;
-
-  await loadGallery(startDate);
+  loadGallery(startDateInput.value);
 });
 
-form.addEventListener("submit", async function (event) {
-  event.preventDefault();
-
-  const startDate = startDateInput.value;
-  const yesterday = getYesterday();
-
-  if (!startDate) {
-    showError("Please choose a start date.");
-    return;
-  }
-
-  if (startDate < "1995-06-16") {
-    showError("Start date cannot be before 1995-06-16.");
-    return;
-  }
-
-  if (startDate > yesterday) {
-    showError("Start date cannot be in the future.");
-    return;
-  }
-
-  await loadGallery(startDate);
-});
-
-closeModalBtn.addEventListener("click", closeModal);
-modalBackdrop.addEventListener("click", closeModal);
-
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape" && !modal.classList.contains("hidden")) {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    closeModal();
-  }
-});
-
-document.addEventListener("visibilitychange", function () {
-  if (document.hidden && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  loadGallery(startDateInput.value);
 });
 
 setDefaultDates();
