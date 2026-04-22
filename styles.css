@@ -1,454 +1,538 @@
-const API_KEY = "AjvYQFb3iYJhytw727jMtAjsHGCw5cqvy3nTLyRS";
-
-const facts = [
-  "Saturn is less dense than water.",
-  "Jupiter is so large that more than 1,300 Earths could fit inside it.",
-  "Neutron stars can spin more than 600 times per second.",
-  "Light from the Sun takes about 8 minutes to reach Earth.",
-  "Mars has the largest volcano in the solar system: Olympus Mons.",
-  "A day on Venus is longer than a year on Venus.",
-  "The footprints on the Moon can last millions of years.",
-  "There are more stars in the universe than grains of sand on Earth.",
-  "The Sun accounts for about 99.86% of the mass in our solar system.",
-  "One million Earths could fit inside the Sun.",
-  "Black holes can stretch objects into spaghetti-like shapes, called spaghettification.",
-  "The Milky Way galaxy is about 100,000 light-years wide.",
-  "A light-year is the distance light travels in one year—about 5.88 trillion miles.",
-  "Pluto is smaller than the United States.",
-  "The International Space Station is visible from Earth with the naked eye.",
-  "Mercury has no atmosphere to retain heat, so temperatures vary drastically.",
-  "Jupiter has the shortest day of all planets—just under 10 hours.",
-  "The largest canyon in the solar system is on Mars (Valles Marineris).",
-  "Uranus rotates on its side compared to other planets.",
-  "Neptune has the fastest winds in the solar system—over 1,200 mph.",
-  "A teaspoon of neutron star material would weigh about a billion tons.",
-  "The Moon is slowly drifting away from Earth each year.",
-  "Space is completely silent because there is no air to carry sound.",
-  "The Hubble Space Telescope has taken over a million images of space.",
-  "Astronauts grow taller in space due to reduced gravity on their spine.",
-  "The Sun will eventually become a red giant and expand.",
-  "Mars has two small moons: Phobos and Deimos.",
-  "The Great Red Spot on Jupiter is a storm that has lasted over 300 years.",
-  "The coldest place in the universe found so far is the Boomerang Nebula.",
-  "Some stars explode as supernovae and briefly outshine entire galaxies.",
-  "Our galaxy, the Milky Way, is on a collision course with the Andromeda galaxy.",
-  "There may be billions of Earth-like planets in our galaxy alone.",
-  "The first human in space was Yuri Gagarin in 1961.",
-  "The first person to walk on the Moon was Neil Armstrong in 1969.",
-  "Spacecraft have visited every planet in our solar system.",
-  "The Sun's surface temperature is about 10,000°F (5,500°C).",
-  "Dark matter makes up most of the universe, but we cannot see it directly.",
-  "A comet’s tail always points away from the Sun.",
-  "Some planets outside our solar system are called exoplanets.",
-  "The largest known star, UY Scuti, is over 1,700 times bigger than the Sun."
-];
-
-const factEl = document.getElementById("fact");
-const form = document.getElementById("date-form");
-const startDateInput = document.getElementById("startDate");
-const endDateInput = document.getElementById("endDate");
-const gallery = document.getElementById("gallery");
-const loading = document.getElementById("loading");
-const errorBox = document.getElementById("errorBox");
-const rangeText = document.getElementById("rangeText");
-
-const modal = document.getElementById("modal");
-const modalBackdrop = document.getElementById("modalBackdrop");
-const closeModalBtn = document.getElementById("closeModal");
-const modalDate = document.getElementById("modalDate");
-const modalTitle = document.getElementById("modalTitle");
-const modalMedia = document.getElementById("modalMedia");
-const modalDesc = document.getElementById("modalDesc");
-
-function getRandomFact(currentFact) {
-  let newFact;
-  do {
-    newFact = facts[Math.floor(Math.random() * facts.length)];
-  } while (newFact === currentFact);
-  return newFact;
+:root {
+  --pantone-286: #0033A0;
+  --pantone-185: #E4002B;
+  --white: #FFFFFF;
+  --black: #000000;
+  --soft-text: #E6ECF5;
+  --shadow: 0 18px 36px rgba(0, 0, 0, 0.38);
+  --radius: 20px;
 }
 
-let currentFact = facts[Math.floor(Math.random() * facts.length)];
-factEl.textContent = currentFact;
+* {
+  box-sizing: border-box;
+}
 
-setInterval(function () {
-  currentFact = getRandomFact(currentFact);
-  factEl.textContent = currentFact;
-}, 5000);
+html {
+  scroll-behavior: smooth;
+}
 
-function speakText(text) {
-  if (!("speechSynthesis" in window)) return;
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", Arial, sans-serif;
+  color: var(--white);
+  background:
+    url("https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg")
+    no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  overflow-x: hidden;
+}
 
-  window.speechSynthesis.cancel();
+.page-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.50);
+  z-index: 0;
+}
 
-  const speech = new SpeechSynthesisUtterance(text);
+.hero,
+.container {
+  position: relative;
+  z-index: 1;
+}
 
-  const voices = window.speechSynthesis.getVoices();
+.hero {
+  padding: 22px 24px 10px;
+  min-height: 200px;
+}
 
-  const femaleVoice =
-    voices.find(v => v.name.includes("Female")) ||
-    voices.find(v => v.name.includes("Google US English")) ||
-    voices.find(v => v.name.includes("Samantha")) ||
-    voices.find(v => v.name.includes("Zira")) ||
-    voices.find(v => v.lang === "en-US");
+.logo {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  width: 110px;
+  height: auto;
+  display: block;
+}
 
-  if (femaleVoice) {
-    speech.voice = femaleVoice;
+.hero-center {
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: var(--pantone-286);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 2.1rem;
+  line-height: 1.1;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(3.4rem, 6vw, 6.3rem);
+  line-height: 1.05;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.hero-text {
+  margin: 16px auto 0;
+  max-width: 780px;
+  color: var(--soft-text);
+  font-size: 1.1rem;
+}
+
+.container {
+  width: min(1280px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.info-box {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin: 0 auto 22px;
+}
+
+.fact-box {
+  max-width: 760px;
+  background: rgba(0, 51, 160, 0.96);
+}
+
+.controls-box {
+  max-width: 900px;
+  background: rgba(0, 51, 160, 0.96);
+}
+
+.info-box h2 {
+  margin: 0 0 18px;
+  font-family: "Orbitron", Arial, sans-serif;
+  font-size: 2rem;
+  text-align: center;
+}
+
+.fact-box p {
+  margin: 0;
+  color: var(--pantone-185);
+  font-weight: 700;
+  text-align: left;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.date-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.field-group label {
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: var(--white);
+  font-size: 1rem;
+}
+
+.field-group input[type="date"] {
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.load-btn {
+  height: 56px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 14px;
+  background: var(--pantone-185);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(228, 0, 43, 0.28);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.load-btn:hover {
+  transform: translateY(-2px);
+}
+
+.load-btn:active {
+  transform: translateY(0);
+}
+
+.helper-text {
+  margin: 14px 0 0;
+  color: var(--soft-text);
+  text-align: center;
+}
+
+.status-wrap {
+  max-width: 900px;
+  margin: 0 auto 14px;
+}
+
+.loading,
+.error {
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-weight: 600;
+}
+
+.loading {
+  background: rgba(0, 51, 160, 0.75);
+}
+
+.error {
+  background: rgba(228, 0, 43, 0.22);
+  border: 1px solid rgba(228, 0, 43, 0.40);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.gallery-wrap {
+  margin-top: 8px;
+}
+
+.gallery-wrap h2 {
+  margin: 6px 0 10px;
+  font-family: "Orbitron", Arial, sans-serif;
+  font-size: 2rem;
+}
+
+.range-text {
+  margin: 0 0 18px;
+  color: var(--soft-text);
+  font-size: 1.05rem;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.card {
+  background: rgba(0, 51, 160, 0.96);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card-image-wrap {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #000;
+  overflow: hidden;
+}
+
+.card-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  loading: lazy;
+}
+
+.video-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--pantone-185);
+  color: var(--white);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.card-body {
+  padding: 16px 18px 20px;
+}
+
+.card-date {
+  margin: 0 0 8px;
+  color: var(--pantone-185);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.card-title {
+  margin: 0;
+  color: var(--white);
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+}
+
+.modal-content {
+  position: relative;
+  width: min(980px, calc(100% - 24px));
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 4vh auto;
+  background: rgba(7, 16, 34, 0.98);
+  border-radius: 22px;
+  padding: 22px;
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.modal-date {
+  margin: 0 50px 10px 0;
+  color: var(--pantone-185);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.modal-content h3 {
+  margin: 0 50px 16px 0;
+  font-family: "Orbitron", Arial, sans-serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+.modal-media {
+  width: 100%;
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.modal-media img,
+.modal-media iframe,
+.modal-media video {
+  width: 100%;
+  display: block;
+}
+
+.modal-media img {
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+.modal-media iframe,
+.modal-media video {
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+.modal-video-link {
+  display: inline-block;
+  margin: 20px;
+  color: var(--white);
+  background: var(--pantone-185);
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.video-fallback-note {
+  margin: 18px 20px 0;
+  color: var(--soft-text);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.modal-desc {
+  margin: 18px 0 0;
+  color: var(--soft-text);
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .date-form {
+    grid-template-columns: 1fr;
   }
 
-  speech.rate = 0.95;
-  speech.pitch = 1.2;
-  speech.volume = 1;
-
-  window.speechSynthesis.speak(speech);
-}
-
-window.speechSynthesis.onvoiceschanged = () => {};
-
-function formatDateForInput(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function createLocalDate(dateString) {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function addDays(dateString, days) {
-  const date = createLocalDate(dateString);
-  date.setDate(date.getDate() + days);
-  return formatDateForInput(date);
-}
-
-function formatReadableDate(dateString) {
-  const date = createLocalDate(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  });
-}
-
-function getYesterday() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return formatDateForInput(d);
-}
-
-function setDefaultDates() {
-  const yesterday = getYesterday();
-  const start = addDays(yesterday, -8);
-  startDateInput.min = "1995-06-16";
-  startDateInput.max = yesterday;
-  startDateInput.value = start;
-  endDateInput.value = yesterday;
-}
-
-function updateEndDate() {
-  if (!startDateInput.value) return;
-  endDateInput.value = addDays(startDateInput.value, 8);
-}
-
-function showLoading() {
-  loading.classList.remove("hidden");
-}
-
-function hideLoading() {
-  loading.classList.add("hidden");
-}
-
-function showError(message) {
-  errorBox.textContent = message;
-  errorBox.classList.remove("hidden");
-}
-
-function hideError() {
-  errorBox.textContent = "";
-  errorBox.classList.add("hidden");
-}
-
-function normalizeVideoUrl(url) {
-  if (!url) return "";
-
-  if (url.includes("youtube.com/watch?v=")) {
-    return url.replace("watch?v=", "embed/");
+  .load-btn {
+    width: 100%;
   }
 
-  if (url.includes("youtu.be/")) {
-    const videoId = url.split("youtu.be/")[1].split("?")[0];
-    return `https://www.youtube.com/embed/${videoId}`;
-  }
-
-  if (url.includes("youtube.com/embed/")) {
-    return url;
-  }
-
-  if (url.includes("vimeo.com/") && !url.includes("player.vimeo.com/video/")) {
-    const parts = url.split("/");
-    const videoId = parts[parts.length - 1].split("?")[0];
-    return `https://player.vimeo.com/video/${videoId}`;
-  }
-
-  return url;
-}
-
-function isDirectVideoFile(url) {
-  if (!url) return false;
-  const cleanUrl = url.split("?")[0].toLowerCase();
-  return (
-    cleanUrl.endsWith(".mp4") ||
-    cleanUrl.endsWith(".webm") ||
-    cleanUrl.endsWith(".ogg") ||
-    cleanUrl.endsWith(".mov") ||
-    cleanUrl.endsWith(".m4v")
-  );
-}
-
-function isYouTubeOrVimeo(url) {
-  if (!url) return false;
-
-  return (
-    url.includes("youtube.com/") ||
-    url.includes("youtu.be/") ||
-    url.includes("vimeo.com/") ||
-    url.includes("player.vimeo.com/")
-  );
-}
-
-function clearModalMedia() {
-  modalMedia.innerHTML = "";
-}
-
-function buildFallbackVideoContent(item) {
-  const previewImg = document.createElement("img");
-  previewImg.src =
-    item.thumbnail_url ||
-    "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-  previewImg.alt = item.title;
-  modalMedia.appendChild(previewImg);
-
-  const note = document.createElement("p");
-  note.className = "video-fallback-note";
-  note.textContent =
-    "This video source blocks in-app embedding, so it cannot play inside the modal. Use the button below to open it directly.";
-  modalMedia.appendChild(note);
-
-  const fallbackLink = document.createElement("a");
-  fallbackLink.href = item.url;
-  fallbackLink.target = "_blank";
-  fallbackLink.rel = "noopener noreferrer";
-  fallbackLink.className = "modal-video-link";
-  fallbackLink.textContent = "Open Video";
-  modalMedia.appendChild(fallbackLink);
-}
-
-function openModal(item) {
-  modalDate.textContent = formatReadableDate(item.date);
-  modalTitle.textContent = item.title;
-  modalDesc.textContent = item.explanation || "";
-  speakText(item.explanation || "");
-  clearModalMedia();
-
-  if (item.media_type === "video") {
-    if (isDirectVideoFile(item.url)) {
-      const video = document.createElement("video");
-      video.src = item.url;
-      video.controls = true;
-      video.autoplay = true;
-      video.muted = false;
-      video.playsInline = true;
-      video.setAttribute("webkit-playsinline", "true");
-      video.setAttribute("preload", "metadata");
-
-      if (item.thumbnail_url) {
-        video.poster = item.thumbnail_url;
-      }
-
-      video.addEventListener("error", function () {
-        clearModalMedia();
-        buildFallbackVideoContent(item);
-      });
-
-      modalMedia.appendChild(video);
-    } else if (isYouTubeOrVimeo(item.url)) {
-      const iframe = document.createElement("iframe");
-      iframe.src = normalizeVideoUrl(item.url);
-      iframe.title = item.title;
-      iframe.allow =
-        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      iframe.allowFullscreen = true;
-      iframe.referrerPolicy = "strict-origin-when-cross-origin";
-
-      modalMedia.appendChild(iframe);
-    } else {
-      buildFallbackVideoContent(item);
-    }
-  } else {
-    const img = document.createElement("img");
-    img.src = item.hdurl || item.url;
-    img.alt = item.title;
-    img.loading = "lazy";
-    modalMedia.appendChild(img);
-  }
-
-  modal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeModal() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-  modal.classList.add("hidden");
-  clearModalMedia();
-  document.body.style.overflow = "";
-}
-
-function getCardMediaSource(item) {
-  if (item.media_type === "video") {
-    return item.thumbnail_url || "https://images-assets.nasa.gov/image/PIA01322/PIA01322~orig.jpg";
-  }
-  return item.url || "";
-}
-
-function createCard(item) {
-  const card = document.createElement("article");
-  card.className = "card";
-
-  const imageSrc = getCardMediaSource(item);
-
-  card.innerHTML = `
-    <div class="card-image-wrap">
-      <img src="${imageSrc}" alt="${item.title}" loading="lazy">
-      ${item.media_type === "video" ? '<span class="video-badge">VIDEO</span>' : ""}
-    </div>
-    <div class="card-body">
-      <p class="card-date">${formatReadableDate(item.date)}</p>
-      <h3 class="card-title">${item.title}</h3>
-    </div>
-  `;
-
-  card.addEventListener("click", function () {
-    openModal(item);
-  });
-
-  return card;
-}
-
-async function fetchApodRange(startDate, endDate) {
-  const url =
-    `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
-
-  const response = await fetch(url);
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.msg || "NASA API error.");
-  }
-
-  if (!Array.isArray(data)) {
-    throw new Error("Unexpected NASA API response.");
-  }
-
-  data.sort(function (a, b) {
-    return createLocalDate(a.date) - createLocalDate(b.date);
-  });
-
-  return data;
-}
-
-async function fetchNineEntries(startDate) {
-  const endDate = addDays(startDate, 8);
-  const data = await fetchApodRange(startDate, endDate);
-
-  if (data.length !== 9) {
-    throw new Error("Unable to load exactly 9 APOD entries for this date range.");
-  }
-
-  return data;
-}
-
-async function loadGallery(startDate) {
-  showLoading();
-  hideError();
-  gallery.innerHTML = "";
-
-  try {
-    const items = await fetchNineEntries(startDate);
-
-    items.forEach(function (item) {
-      gallery.appendChild(createCard(item));
-    });
-
-    endDateInput.value = items[8].date;
-    rangeText.textContent =
-      `${formatReadableDate(items[0].date)} through ${formatReadableDate(items[8].date)}`;
-  } catch (error) {
-    showError(error.message);
-    rangeText.textContent = "Gallery could not be loaded.";
-  } finally {
-    hideLoading();
+  .gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-startDateInput.addEventListener("change", async function () {
-  updateEndDate();
-
-  const startDate = startDateInput.value;
-  const yesterday = getYesterday();
-
-  if (!startDate) return;
-  if (startDate < "1995-06-16") return;
-  if (startDate > yesterday) return;
-
-  await loadGallery(startDate);
-});
-
-form.addEventListener("submit", async function (event) {
-  event.preventDefault();
-
-  const startDate = startDateInput.value;
-  const yesterday = getYesterday();
-
-  if (!startDate) {
-    showError("Please choose a start date.");
-    return;
+@media (max-width: 640px) {
+  body {
+    background-attachment: scroll;
   }
 
-  if (startDate < "1995-06-16") {
-    showError("Start date cannot be before 1995-06-16.");
-    return;
+  .container {
+    width: calc(100% - 20px);
   }
 
-  if (startDate > yesterday) {
-    showError("Start date cannot be in the future.");
-    return;
+  .hero {
+    padding: 16px 10px 8px;
+    min-height: auto;
   }
 
-  await loadGallery(startDate);
-});
-
-closeModalBtn.addEventListener("click", closeModal);
-modalBackdrop.addEventListener("click", closeModal);
-
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape" && !modal.classList.contains("hidden")) {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    closeModal();
+  .logo {
+    position: static;
+    display: block;
+    width: 84px;
+    margin: 0 auto 12px;
   }
-});
 
-document.addEventListener("visibilitychange", function () {
-  if (document.hidden && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
+  .hero-center {
+    padding-top: 0;
   }
-});
 
-setDefaultDates();
-updateEndDate();
-loadGallery(startDateInput.value);
+  .eyebrow {
+    font-size: 1.35rem;
+    margin-bottom: 10px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 9vw, 3rem);
+    line-height: 1.1;
+  }
+
+  .hero-text {
+    font-size: 0.98rem;
+    margin-top: 12px;
+    padding: 0 4px;
+  }
+
+  .info-box {
+    padding: 18px 14px;
+    margin-bottom: 16px;
+  }
+
+  .info-box h2,
+  .gallery-wrap h2 {
+    font-size: 1.45rem;
+  }
+
+  .fact-box p {
+    font-size: 1rem;
+  }
+
+  .field-group input[type="date"],
+  .load-btn {
+    height: 52px;
+    font-size: 0.98rem;
+  }
+
+  .gallery {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .fact-box,
+  .controls-box {
+    max-width: 100%;
+  }
+
+  .range-text {
+    font-size: 0.96rem;
+  }
+
+  .modal-content {
+    width: calc(100% - 16px);
+    margin: 2vh auto;
+    max-height: 96vh;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .modal-date {
+    margin-right: 44px;
+    font-size: 0.95rem;
+  }
+
+  .modal-content h3 {
+    margin-right: 44px;
+    font-size: 1.2rem;
+  }
+
+  .modal-media {
+    min-height: 180px;
+  }
+
+  .modal-media img {
+    max-height: 40vh;
+  }
+
+  .modal-desc {
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+
+  .close-btn {
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.35rem;
+  }
+
+  .modal-video-link {
+    width: calc(100% - 24px);
+    margin: 14px 12px 12px;
+    padding: 12px 14px;
+    font-size: 0.96rem;
+  }
+}
