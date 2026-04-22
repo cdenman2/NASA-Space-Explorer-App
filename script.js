@@ -343,13 +343,14 @@ async function fetchApodRange(startDate, endDate) {
     `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
 
   const response = await fetch(url);
-  const text = await response.text();
+  const rawText = await response.text();
 
   let data;
+
   try {
-    data = JSON.parse(text);
+    data = JSON.parse(rawText);
   } catch (error) {
-    throw new Error("NASA API returned invalid data. Please try another date range.");
+    throw new Error("NASA API returned invalid data. Please try another date.");
   }
 
   if (!response.ok) {
@@ -369,13 +370,7 @@ async function fetchApodRange(startDate, endDate) {
 
 async function fetchNineEntries(startDate) {
   const endDate = addDays(startDate, 8);
-  const data = await fetchApodRange(startDate, endDate);
-
-  if (data.length !== 9) {
-    throw new Error("Unable to load exactly 9 APOD entries for this date range.");
-  }
-
-  return data;
+  return await fetchApodRange(startDate, endDate);
 }
 
 async function loadGallery(startDate) {
@@ -390,9 +385,9 @@ async function loadGallery(startDate) {
       gallery.appendChild(createCard(item));
     });
 
-    endDateInput.value = items[8].date;
+    endDateInput.value = addDays(startDate, 8);
     rangeText.textContent =
-      `${formatReadableDate(items[0].date)} through ${formatReadableDate(items[8].date)}`;
+      `${formatReadableDate(startDate)} through ${formatReadableDate(addDays(startDate, 8))}`;
   } catch (error) {
     showError(error.message);
     rangeText.textContent = "Gallery could not be loaded.";
