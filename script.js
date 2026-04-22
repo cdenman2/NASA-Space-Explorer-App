@@ -343,7 +343,15 @@ async function fetchApodRange(startDate, endDate) {
     `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
 
   const response = await fetch(url);
-  const data = await response.json();
+  const rawText = await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(rawText);
+  } catch (error) {
+    throw new Error("NASA API returned invalid data. Please try another date.");
+  }
 
   if (!response.ok) {
     throw new Error(data.msg || "NASA API error.");
